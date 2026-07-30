@@ -5,8 +5,14 @@ def welcome():
 
 
 def get_user_name():
-    name = input("Enter your name: ")
-    return name
+
+    while True:
+        name = input("Enter your name: ")
+
+        if name.replace(" ", "").isalpha():
+            return name
+        else:
+            print("❌ Invalid name! Please enter only alphabets.")
 
 
 def show_menu():
@@ -22,8 +28,24 @@ def show_menu():
 
 
 def get_career_interest():
-    interest = input("Enter your career interest: ")
-    return interest.lower()
+
+    while True:
+        interest = input("Enter your career interest: ").lower()
+
+        if interest in [
+            "ai",
+            "artificial intelligence",
+            "web",
+            "web development",
+            "python",
+            "python programming",
+            "data science",
+            "datascience",
+        ]:
+            return interest
+
+        else:
+            print("❌ Invalid career! Please choose a valid career.")
 
 
 def show_career_roadmap(interest):
@@ -52,8 +74,27 @@ def show_career_roadmap(interest):
         print("- Learn Object-Oriented Programming")
         print("- Build Python Projects")
 
+
+def process_choice(choice):
+
+    if choice == "1":
+        interest = get_career_interest()
+        show_career_roadmap(interest)
+
+    elif choice == "2":
+        print("\nResume Analysis feature is coming soon.")
+
+    elif choice == "3":
+        print("\nATS Score Checker feature is coming soon.")
+
+    elif choice == "4":
+        print("\nInterview Preparation feature is coming soon.")
+
+    elif choice == "5":
+        print("\nThank you for using AI Career Copilot!")
+
     else:
-        print("\nSorry, this career is not available yet.")
+        print("\n❌ Invalid choice! Please select 1 to 5.")
 
 
 welcome()
@@ -62,23 +103,12 @@ name = get_user_name()
 
 print(f"\nWelcome, {name}")
 
-choice = show_menu()
+while True:
 
-if choice == "1":
-    interest = get_career_interest()
-    show_career_roadmap(interest)
+    choice = show_menu()
 
-elif choice == "2":
-    print("\nResume Analysis feature is coming soon.")
+    if choice == "5":
+        print("\nThank you for using AI Career Copilot!")
+        break
 
-elif choice == "3":
-    print("\nATS Score Checker feature is coming soon.")
-
-elif choice == "4":
-    print("\nInterview Preparation feature is coming soon.")
-
-elif choice == "5":
-    print("\nThank you for using AI Career Copilot!")
-
-else:
-    print("\nInvalid Choice!")
+    process_choice(choice)
