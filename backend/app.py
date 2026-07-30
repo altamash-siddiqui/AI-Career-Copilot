@@ -9,9 +9,21 @@ def get_user_name():
     return name
 
 
+def show_menu():
+    print("\nChoose an option:")
+    print("1. Career Roadmap")
+    print("2. Resume Analysis")
+    print("3. ATS Score")
+    print("4. Interview Preparation")
+    print("5. Exit")
+
+    choice = input("Enter your choice: ")
+    return choice
+
+
 def get_career_interest():
     interest = input("Enter your career interest: ")
-    return interest
+    return interest.lower()
 
 
 def show_career_roadmap(interest):
@@ -47,11 +59,26 @@ def show_career_roadmap(interest):
 welcome()
 
 name = get_user_name()
-interest = get_career_interest()
-
-interest = interest.lower()
 
 print(f"\nWelcome, {name}")
-print(f"Career Interest: {interest}")
 
-show_career_roadmap(interest)
+choice = show_menu()
+
+if choice == "1":
+    interest = get_career_interest()
+    show_career_roadmap(interest)
+
+elif choice == "2":
+    print("\nResume Analysis feature is coming soon.")
+
+elif choice == "3":
+    print("\nATS Score Checker feature is coming soon.")
+
+elif choice == "4":
+    print("\nInterview Preparation feature is coming soon.")
+
+elif choice == "5":
+    print("\nThank you for using AI Career Copilot!")
+
+else:
+    print("\nInvalid Choice!")
