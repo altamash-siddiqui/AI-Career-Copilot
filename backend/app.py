@@ -5,7 +5,6 @@ def welcome():
 
 
 def get_user_name():
-
     while True:
         name = input("Enter your name: ")
 
@@ -23,12 +22,10 @@ def show_menu():
     print("4. Interview Preparation")
     print("5. Exit")
 
-    choice = input("Enter your choice: ")
-    return choice
+    return input("Enter your choice: ")
 
 
 def get_career_interest():
-
     while True:
         interest = input("Enter your career interest: ").lower()
 
@@ -43,7 +40,6 @@ def get_career_interest():
             "datascience",
         ]:
             return interest
-
         else:
             print("❌ Invalid career! Please choose a valid career.")
 
@@ -56,11 +52,17 @@ def show_career_roadmap(interest):
         print("- Learn Machine Learning")
         print("- Build AI Projects")
 
-    elif interest == "web development" or interest == "web":
+    elif interest == "web" or interest == "web development":
         print("\nSuggested Career Roadmap:")
         print("- Learn HTML")
         print("- Learn CSS")
         print("- Learn JavaScript")
+
+    elif interest == "python" or interest == "python programming":
+        print("\nSuggested Career Roadmap:")
+        print("- Learn Python Basics")
+        print("- Learn Object-Oriented Programming")
+        print("- Build Python Projects")
 
     elif interest == "data science" or interest == "datascience":
         print("\nSuggested Career Roadmap:")
@@ -68,11 +70,74 @@ def show_career_roadmap(interest):
         print("- Learn Pandas")
         print("- Learn SQL")
 
-    elif interest == "python" or interest == "python programming":
-        print("\nSuggested Career Roadmap:")
-        print("- Learn Python Basics")
-        print("- Learn Object-Oriented Programming")
-        print("- Build Python Projects")
+
+def resume_analysis():
+    skills = input("Enter your skills (comma separated): ")
+
+    skills_list = skills.split(",")
+
+    print("\n========== Resume Analysis ==========")
+
+    print("\nYour Skills:")
+    for skill in skills_list:
+        print("-", skill.strip())
+
+    print("\nTotal Skills:", len(skills_list))
+
+    if len(skills_list) >= 5:
+        print("✅ Good! Your resume has a decent number of skills.")
+    else:
+        print("⚠ Add more skills to strengthen your resume.")
+
+    required_skills = ["python", "git", "sql"]
+
+    print("\nSkill Check:")
+
+    user_skills = [skill.strip().lower() for skill in skills_list]
+
+    for skill in required_skills:
+        if skill in user_skills:
+            print(f"✅ {skill.capitalize()} - Available")
+        else:
+            print(f"❌ {skill.capitalize()} - Missing")
+
+
+def ats_score():
+
+    score = 0
+
+    skills = input("Enter your skills (comma separated): ").lower()
+
+    if "python" in skills:
+        score += 25
+
+    if "git" in skills:
+        score += 25
+
+    if "sql" in skills:
+        score += 25
+
+    if "html" in skills or "css" in skills:
+        score += 25
+
+    print("\n========== ATS SCORE ==========")
+    print(f"Your ATS Score: {score}/100")
+
+    if score >= 75:
+        print("✅ Excellent Resume")
+    elif score >= 50:
+        print("👍 Good Resume")
+    else:
+        print("⚠ Improve your Resume")
+
+
+def interview_preparation():
+    print("\n========== Interview Preparation ==========")
+    print("1. Tell me about yourself.")
+    print("2. What are your strengths?")
+    print("3. Why should we hire you?")
+    print("4. Explain one of your projects.")
+    print("5. What are your career goals?")
 
 
 def process_choice(choice):
@@ -82,13 +147,13 @@ def process_choice(choice):
         show_career_roadmap(interest)
 
     elif choice == "2":
-        print("\nResume Analysis feature is coming soon.")
+        resume_analysis()
 
     elif choice == "3":
-        print("\nATS Score Checker feature is coming soon.")
+        ats_score()
 
     elif choice == "4":
-        print("\nInterview Preparation feature is coming soon.")
+        interview_preparation()
 
     elif choice == "5":
         print("\nThank you for using AI Career Copilot!")
