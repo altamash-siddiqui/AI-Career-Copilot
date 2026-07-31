@@ -72,6 +72,7 @@ def show_career_roadmap(interest):
 
 
 def resume_analysis():
+
     skills = input("Enter your skills (comma separated): ")
 
     skills_list = skills.split(",")
@@ -100,8 +101,8 @@ def resume_analysis():
             print(f"✅ {skill.capitalize()} - Available")
         else:
             print(f"❌ {skill.capitalize()} - Missing")
-
-
+            
+            
 def ats_score():
 
     score = 0
@@ -132,12 +133,38 @@ def ats_score():
 
 
 def interview_preparation():
+
     print("\n========== Interview Preparation ==========")
-    print("1. Tell me about yourself.")
-    print("2. What are your strengths?")
-    print("3. Why should we hire you?")
-    print("4. Explain one of your projects.")
-    print("5. What are your career goals?")
+
+    questions = [
+        "What is Python?",
+        "What is a List in Python?",
+        "What is a Function?"
+    ]
+
+    answers = [
+        "Python is a high-level, interpreted programming language.",
+        "A List is a collection used to store multiple items.",
+        "A Function is a reusable block of code that performs a specific task."
+    ]
+
+    score = 0
+
+    for i in range(len(questions)):
+
+        print(f"\nQuestion {i + 1}")
+        print(questions[i])
+
+        user_answer = input("Your Answer: ")
+
+        if len(user_answer.strip()) > 10:
+            score += 1
+
+        print("\nSample Answer:")
+        print(answers[i])
+
+    print(f"\n🏆 Your Practice Score: {score}/{len(questions)}")
+    print("🎉 Interview Practice Completed!")
 
 
 def process_choice(choice):
