@@ -1,0 +1,5 @@
+Name: Altamash, Career: ai
+Name: Altamash, Career: web
+Name: sami, Career: data science
+Name: Altamash, Career: ai
+Name: Sami, Career: ai

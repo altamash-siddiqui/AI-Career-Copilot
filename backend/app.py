@@ -20,7 +20,8 @@ def show_menu():
     print("2. Resume Analysis")
     print("3. ATS Score")
     print("4. Interview Preparation")
-    print("5. Exit")
+    print("5. Career History")
+    print("6. Exit")
 
     return input("Enter your choice: ")
 
@@ -101,8 +102,8 @@ def resume_analysis():
             print(f"✅ {skill.capitalize()} - Available")
         else:
             print(f"❌ {skill.capitalize()} - Missing")
-            
-            
+
+
 def ats_score():
 
     score = 0
@@ -166,11 +167,38 @@ def interview_preparation():
     print(f"\n🏆 Your Practice Score: {score}/{len(questions)}")
     print("🎉 Interview Practice Completed!")
 
+def career_history():
+
+    print("\n========== Career History ==========")
+
+    try:
+        file = open("career_data.txt", "r")
+
+        data = file.read()
+
+        if data.strip() == "":
+            print("No career history found.")
+        else:
+            print(data)
+
+        file.close()
+
+    except FileNotFoundError:
+        print("No career history found.")
+
 
 def process_choice(choice):
 
     if choice == "1":
+
         interest = get_career_interest()
+
+        file = open("career_data.txt", "a")
+        file.write(f"Name: {name}, Career: {interest}\n")
+        file.close()
+
+        print("\n✅ Career saved successfully!")
+
         show_career_roadmap(interest)
 
     elif choice == "2":
@@ -183,10 +211,13 @@ def process_choice(choice):
         interview_preparation()
 
     elif choice == "5":
+        career_history()
+
+    elif choice == "6":
         print("\nThank you for using AI Career Copilot!")
 
     else:
-        print("\n❌ Invalid choice! Please select 1 to 5.")
+        print("\n❌ Invalid choice! Please select 1 to 6.")
 
 
 welcome()
@@ -199,7 +230,7 @@ while True:
 
     choice = show_menu()
 
-    if choice == "5":
+    if choice == "6":
         print("\nThank you for using AI Career Copilot!")
         break
 
