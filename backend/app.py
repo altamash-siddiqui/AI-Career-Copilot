@@ -37,7 +37,7 @@ class CareerCopilot:
 
             print("\n✅ Career saved successfully!")
 
-            show_career_roadmap(interest)
+            self.show_career_roadmap(interest)
 
         elif choice == "2":
             self.resume_analysis()
@@ -53,8 +53,8 @@ class CareerCopilot:
 
         else:
             print("\n❌ Invalid choice! Please select 1 to 6.")
-            
-            
+     
+     
     def resume_analysis(self):
 
         skills = input("Enter your skills (comma separated): ")
@@ -167,6 +167,40 @@ class CareerCopilot:
 
         except FileNotFoundError:
             print("No career history found.")
+            
+            
+    def show_career_roadmap(self, interest):
+
+        roadmaps = {
+            "ai": [
+                "Learn Python",
+                "Learn Machine Learning",
+                "Build AI Projects"
+            ],
+
+            "web": [
+                "Learn HTML",
+                "Learn CSS",
+                "Learn JavaScript"
+            ],
+
+            "python": [
+                "Learn Python Basics",
+                "Learn Object-Oriented Programming",
+                "Build Python Projects"
+            ],
+
+            "data science": [
+                "Learn Python",
+                "Learn Pandas",
+                "Learn SQL"
+            ],
+        }
+
+        print("\nSuggested Career Roadmap:")
+
+        for step in roadmaps[interest]:
+            print("-", step)
 
 
 def get_user_name():
@@ -203,40 +237,6 @@ def get_career_interest():
             return career_alias.get(interest, interest)
         else:
             print("❌ Invalid career! Please choose a valid career.")
-
-
-def show_career_roadmap(interest):
-
-    roadmaps = {
-        "ai": [
-            "Learn Python",
-            "Learn Machine Learning",
-            "Build AI Projects"
-        ],
-
-        "web": [
-            "Learn HTML",
-            "Learn CSS",
-            "Learn JavaScript"
-        ],
-
-        "python": [
-            "Learn Python Basics",
-            "Learn Object-Oriented Programming",
-            "Build Python Projects"
-        ],
-
-        "data science": [
-            "Learn Python",
-            "Learn Pandas",
-            "Learn SQL"
-        ],
-    }
-
-    print("\nSuggested Career Roadmap:")
-
-    for step in roadmaps[interest]:
-        print("-", step)
 
 
 copilot = CareerCopilot()
