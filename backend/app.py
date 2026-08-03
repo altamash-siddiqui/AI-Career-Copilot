@@ -183,6 +183,13 @@ def get_career_interest():
     while True:
         interest = input("Enter your career interest: ").lower()
 
+        career_alias = {
+            "artificial intelligence": "ai",
+            "web development": "web",
+            "python programming": "python",
+            "datascience": "data science"
+        }
+
         if interest in [
             "ai",
             "artificial intelligence",
@@ -193,36 +200,43 @@ def get_career_interest():
             "data science",
             "datascience",
         ]:
-            return interest
+            return career_alias.get(interest, interest)
         else:
             print("❌ Invalid career! Please choose a valid career.")
 
 
 def show_career_roadmap(interest):
 
-    if interest in ["ai", "artificial intelligence"]:
-        print("\nSuggested Career Roadmap:")
-        print("- Learn Python")
-        print("- Learn Machine Learning")
-        print("- Build AI Projects")
+    roadmaps = {
+        "ai": [
+            "Learn Python",
+            "Learn Machine Learning",
+            "Build AI Projects"
+        ],
 
-    elif interest in ["web", "web development"]:
-        print("\nSuggested Career Roadmap:")
-        print("- Learn HTML")
-        print("- Learn CSS")
-        print("- Learn JavaScript")
+        "web": [
+            "Learn HTML",
+            "Learn CSS",
+            "Learn JavaScript"
+        ],
 
-    elif interest in ["python", "python programming"]:
-        print("\nSuggested Career Roadmap:")
-        print("- Learn Python Basics")
-        print("- Learn Object-Oriented Programming")
-        print("- Build Python Projects")
+        "python": [
+            "Learn Python Basics",
+            "Learn Object-Oriented Programming",
+            "Build Python Projects"
+        ],
 
-    elif interest in ["data science", "datascience"]:
-        print("\nSuggested Career Roadmap:")
-        print("- Learn Python")
-        print("- Learn Pandas")
-        print("- Learn SQL")
+        "data science": [
+            "Learn Python",
+            "Learn Pandas",
+            "Learn SQL"
+        ],
+    }
+
+    print("\nSuggested Career Roadmap:")
+
+    for step in roadmaps[interest]:
+        print("-", step)
 
 
 copilot = CareerCopilot()

@@ -9,3 +9,9 @@ Name: Altamash Siddiqui, Career: ai
 Name: Anwar, Career: web
 Name: Abdullah, Career: python
 Name: Fahad, Career: data science
+Name: Ashraf, Career: ai
+Name: Aryan, Career: python
+Name: Hamid, Career: web
+Name: Nabeel, Career: web
+Name: Nabeel, Career: data science
+Name: Nabeel, Career: ai
