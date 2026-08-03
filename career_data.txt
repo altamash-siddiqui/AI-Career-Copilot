@@ -3,3 +3,9 @@ Name: Altamash, Career: web
 Name: sami, Career: data science
 Name: Altamash, Career: ai
 Name: Sami, Career: ai
+Name: Altamash Siddiui, Career: ai
+Name: Altamash, Career: ai
+Name: Altamash Siddiqui, Career: ai
+Name: Anwar, Career: web
+Name: Abdullah, Career: python
+Name: Fahad, Career: data science
