@@ -20,3 +20,11 @@ Name: Hammad, Career: python
 Name: Armaan, Career: python
 Name: Arham, Career: python
 Name: Arbaz, Career: web
+Name: Asad, Career: python
+Name: Ashraf, Career: web
+Name: Anshika, Career: python
+Name: Aribah, Career: ai
+Name: Anamta, Career: python
+Name: Anamta, Career: web
+Name: Sami, Career: ai
+Name: Sami, Career: ai
