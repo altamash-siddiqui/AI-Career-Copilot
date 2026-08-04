@@ -7,65 +7,12 @@ class Person:
         self.name = name
 
     def welcome_user(self):
-        print(f"\nWelcome, {self.name}")
-
-class CareerCopilot(Person):
-
-    def __init__(self):
-        super().__init__()
-
-    def welcome(self):
-        print("=" * 35)
-        print("      AI Career Copilot")
-        print("=" * 35)
-        
-    def welcome_user(self):
         print("\n" + "=" * 35)
         print(f"Welcome, {self.name}")
-        print("Let's build your career together! 🚀")
         print("=" * 35)
 
-    def show_menu(self):
-        print("\nChoose an option:")
-        print("1. Career Roadmap")
-        print("2. Resume Analysis")
-        print("3. ATS Score")
-        print("4. Interview Preparation")
-        print("5. Career History")
-        print("6. Exit")
+class CareerFeatures:
 
-        return input("Enter your choice: ")
-    
-    
-    def process_choice(self, choice):
-
-        if choice == "1":
-
-            interest = get_career_interest()
-
-            with open("career_data.txt", "a") as file:
-                file.write(f"Name: {self.name}, Career: {interest}\n")
-
-            print("\n✅ Career saved successfully!")
-
-            self.show_career_roadmap(interest)
-
-        elif choice == "2":
-            self.resume_analysis()
-
-        elif choice == "3":
-            self.ats_score()
-
-        elif choice == "4":
-            self.interview_preparation()
-
-        elif choice == "5":
-            self.career_history()
-
-        else:
-            print("\n❌ Invalid choice! Please select 1 to 6.")
-     
-     
     def resume_analysis(self):
 
         skills = input("Enter your skills (comma separated): ")
@@ -126,7 +73,6 @@ class CareerCopilot(Person):
         else:
             print("⚠ Improve your Resume")
             
-            
     def interview_preparation(self):
 
         print("\n========== Interview Preparation ==========")
@@ -161,7 +107,6 @@ class CareerCopilot(Person):
         print(f"\n🏆 Your Practice Score: {score}/{len(questions)}")
         print("🎉 Interview Practice Completed!")
         
-        
     def career_history(self):
 
         print("\n========== Career History ==========")
@@ -178,6 +123,60 @@ class CareerCopilot(Person):
 
         except FileNotFoundError:
             print("No career history found.")
+
+class CareerCopilot(Person, CareerFeatures):
+
+    def __init__(self):
+        super().__init__()
+
+    def welcome(self):
+        print("=" * 35)
+        print("      AI Career Copilot")
+        print("=" * 35)
+
+    def welcome_user(self):
+        super().welcome_user()
+        print("Let's build your career together! 🚀")
+
+    def show_menu(self):
+        print("\nChoose an option:")
+        print("1. Career Roadmap")
+        print("2. Resume Analysis")
+        print("3. ATS Score")
+        print("4. Interview Preparation")
+        print("5. Career History")
+        print("6. Exit")
+
+        return input("Enter your choice: ")
+    
+    
+    def process_choice(self, choice):
+
+        if choice == "1":
+
+            interest = get_career_interest()
+
+            with open("career_data.txt", "a") as file:
+                file.write(f"Name: {self.name}, Career: {interest}\n")
+
+            print("\n✅ Career saved successfully!")
+
+            self.show_career_roadmap(interest)
+
+        elif choice == "2":
+            self.resume_analysis()
+
+        elif choice == "3":
+            self.ats_score()
+
+        elif choice == "4":
+            self.interview_preparation()
+
+        elif choice == "5":
+            self.career_history()
+
+        else:
+            print("\n❌ Invalid choice! Please select 1 to 6.")
             
             
     def show_career_roadmap(self, interest):
