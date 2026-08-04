@@ -1,15 +1,20 @@
 class Person:
 
     def __init__(self):
-        self.name = ""
+        self.__name = ""
 
     def set_name(self, name):
-        self.name = name
+
+        if name.replace(" ", "").isalpha():
+            self.__name = name
+        else:
+            print("❌ Invalid Name!")
+
+    def get_name(self):
+        return self.__name
 
     def welcome_user(self):
-        print("\n" + "=" * 35)
-        print(f"Welcome, {self.name}")
-        print("=" * 35)
+        print(f"\nWelcome, {self.__name}")
 
 class CareerFeatures:
 
@@ -135,8 +140,10 @@ class CareerCopilot(Person, CareerFeatures):
         print("=" * 35)
 
     def welcome_user(self):
+        print("\n" + "=" * 35)
         super().welcome_user()
         print("Let's build your career together! 🚀")
+        print("=" * 35)
 
     def show_menu(self):
         print("\nChoose an option:")
@@ -157,7 +164,7 @@ class CareerCopilot(Person, CareerFeatures):
             interest = get_career_interest()
 
             with open("career_data.txt", "a") as file:
-                file.write(f"Name: {self.name}, Career: {interest}\n")
+                file.write(f"Name: {self.get_name()}, Career: {interest}\n")
 
             print("\n✅ Career saved successfully!")
 
@@ -187,30 +194,29 @@ class CareerCopilot(Person, CareerFeatures):
                 "Learn Machine Learning",
                 "Build AI Projects"
             ],
-
             "web": [
                 "Learn HTML",
                 "Learn CSS",
                 "Learn JavaScript"
             ],
-
             "python": [
                 "Learn Python Basics",
                 "Learn Object-Oriented Programming",
                 "Build Python Projects"
             ],
-
             "data science": [
                 "Learn Python",
                 "Learn Pandas",
                 "Learn SQL"
-            ],
+            ]
         }
 
-        print("\nSuggested Career Roadmap:")
+        print("\n========== Career Roadmap ==========")
 
-        for step in roadmaps[interest]:
-            print("-", step)
+        for index, step in enumerate(roadmaps[interest], start=1):
+            print(f"{index}. {step}")
+
+        print("=" * 35)
 
 
 def get_user_name():
