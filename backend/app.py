@@ -1,18 +1,29 @@
-class CareerCopilot:
+class Person:
 
     def __init__(self):
         self.name = ""
-
-    def welcome(self):
-        print("=" * 35)
-        print("      AI Career Copilot")
-        print("=" * 35)
 
     def set_name(self, name):
         self.name = name
 
     def welcome_user(self):
         print(f"\nWelcome, {self.name}")
+
+class CareerCopilot(Person):
+
+    def __init__(self):
+        super().__init__()
+
+    def welcome(self):
+        print("=" * 35)
+        print("      AI Career Copilot")
+        print("=" * 35)
+        
+    def welcome_user(self):
+        print("\n" + "=" * 35)
+        print(f"Welcome, {self.name}")
+        print("Let's build your career together! 🚀")
+        print("=" * 35)
 
     def show_menu(self):
         print("\nChoose an option:")

@@ -17,3 +17,4 @@ Name: Nabeel, Career: data science
 Name: Nabeel, Career: ai
 Name: Haziq, Career: python
 Name: Hammad, Career: python
+Name: Armaan, Career: python
