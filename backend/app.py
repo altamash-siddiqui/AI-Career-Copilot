@@ -1,5 +1,6 @@
 import json
 import logging
+import csv
 
 from person import Person
 from career_features import CareerFeatures
@@ -28,7 +29,8 @@ class CareerCopilot(Person, CareerFeatures):
         print("3. ATS Score")
         print("4. Interview Preparation")
         print("5. Career History")
-        print("6. Exit")
+        print("6. Export Career History to CSV")
+        print("7. Exit")
 
         return input("Enter your choice: ")
     
@@ -71,8 +73,17 @@ class CareerCopilot(Person, CareerFeatures):
         elif choice == "5":
             self.career_history()
 
+        elif choice == "6":
+            self.export_to_csv()
+
+        elif choice == "7":
+            print("\nThank you for using AI Career Copilot!")
+            return False
+
         else:
-            print("\n❌ Invalid choice! Please select 1 to 6.")
+            print("\n❌ Invalid choice! Please select 1 to 7.")
+
+        return True
             
             
     def show_career_roadmap(self, interest):
@@ -106,6 +117,34 @@ class CareerCopilot(Person, CareerFeatures):
             print(f"{index}. {step}")
 
         print("=" * 35)
+        
+    def export_to_csv(self):
+
+        try:
+
+            with open("career_data.json", "r") as file:
+                data = json.load(file)
+
+            with open("career_history.csv", "w", newline="") as file:
+
+                writer = csv.writer(file)
+
+                writer.writerow(["Name", "Career"])
+
+                for record in data:
+                    writer.writerow(
+                        [record["name"], record["career"]]
+                    )
+
+            print("✅ Career history exported to career_history.csv")
+
+            logging.info("Career history exported to CSV.")
+
+        except Exception as e:
+
+            logging.error(str(e))
+
+            print(f"❌ {e}")
 
 
 copilot = CareerCopilot()
@@ -122,8 +161,5 @@ while True:
 
     choice = copilot.show_menu()
 
-    if choice == "6":
-        print("\nThank you for using AI Career Copilot!")
+    if not copilot.process_choice(choice):
         break
-
-    copilot.process_choice(choice)
