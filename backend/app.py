@@ -1,3 +1,6 @@
+import json
+import logging
+
 from person import Person
 from career_features import CareerFeatures
 from utils import get_user_name, get_career_interest
@@ -36,10 +39,23 @@ class CareerCopilot(Person, CareerFeatures):
 
             interest = get_career_interest()
 
-            with open("career_data.txt", "a") as file:
-                file.write(f"Name: {self.get_name()}, Career: {interest}\n")
+            try:
+                with open("career_data.json", "r") as file:
+                    careers = json.load(file)
+            except:
+                careers = []
+
+            careers.append({
+                "name": self.get_name(),
+                "career": interest
+            })
+
+            with open("career_data.json", "w") as file:
+                json.dump(careers, file, indent=4)
 
             print("\n✅ Career saved successfully!")
+
+            logging.info(f"Career selected: {interest}")
 
             self.show_career_roadmap(interest)
 

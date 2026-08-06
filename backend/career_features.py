@@ -1,3 +1,5 @@
+import json
+
 class CareerFeatures:
 
     def resume_analysis(self):
@@ -101,14 +103,18 @@ class CareerFeatures:
         print("\n========== Career History ==========")
 
         try:
-            with open("career_data.txt", "r") as file:
 
-                data = file.read()
+            with open("career_data.json", "r") as file:
+                careers = json.load(file)
 
-                if data.strip() == "":
-                    print("No career history found.")
-                else:
-                    print(data)
+            if len(careers) == 0:
+                print("No career history found.")
+                return
+
+            for career in careers:
+                print(f"Name: {career['name']}")
+                print(f"Career: {career['career']}")
+                print("-" * 30)
 
         except FileNotFoundError:
             print("No career history found.")
