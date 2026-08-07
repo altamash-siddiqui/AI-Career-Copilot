@@ -21,3 +21,19 @@
 2026-08-07 02:44:27,360 - INFO - Career deleted for anshika
 2026-08-07 02:45:01,367 - WARNING - Search failed for anshika
 2026-08-07 23:25:26,744 - INFO - User entered name: Altamash
+2026-08-07 23:45:13,486 - INFO - User entered name: Altamash
+2026-08-07 23:48:09,297 - ERROR - Name should contain only alphabets.
+2026-08-07 23:48:13,344 - ERROR - Name should contain only alphabets.
+2026-08-07 23:48:24,136 - INFO - User entered name: Altamash
+2026-08-07 23:53:17,443 - INFO - User entered name: Altamash
+2026-08-07 23:53:26,687 - INFO - Career selected: ai
+2026-08-07 23:53:26,689 - INFO - Career selected: ai
+2026-08-07 23:57:07,614 - INFO - User entered name: Asas
+2026-08-07 23:57:13,504 - INFO - Career selected: web
+2026-08-07 23:57:13,506 - INFO - Career selected: web
+2026-08-07 23:58:24,287 - INFO - User entered name: Ashraf
+2026-08-07 23:58:37,530 - INFO - Career selected: python
+2026-08-07 23:58:37,532 - INFO - Career selected: python
+2026-08-07 23:59:22,300 - INFO - User entered name: Anas
+2026-08-07 23:59:39,784 - INFO - Career selected: python
+2026-08-07 23:59:39,786 - INFO - Career selected: python

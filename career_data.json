@@ -1,1 +1,18 @@
-[]
+[
+    {
+        "name": "Altamash",
+        "career": "ai"
+    },
+    {
+        "name": "Asas",
+        "career": "web"
+    },
+    {
+        "name": "Ashraf",
+        "career": "python"
+    },
+    {
+        "name": "Anas",
+        "career": "python"
+    }
+]

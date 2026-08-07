@@ -33,7 +33,8 @@ class CareerCopilot(Person, CareerFeatures):
         print("7. Search Career Record")
         print("8. Update Career Record")
         print("9. Delete Career Record")
-        print("10. Exit")
+        print("10. Dashboard")
+        print("11. Exit")
 
         return input("Enter your choice: ")
     
@@ -89,11 +90,14 @@ class CareerCopilot(Person, CareerFeatures):
             self.delete_career()
 
         elif choice == "10":
+            self.dashboard()
+
+        elif choice == "11":
             print("\nThank you for using AI Career Copilot!")
             return False
 
         else:
-            print("\n❌ Invalid choice! Please select 1 to 10.")
+            print("\n❌ Invalid choice! Please select 1 to 11.")
 
         return True
             
@@ -276,6 +280,60 @@ class CareerCopilot(Person, CareerFeatures):
             else:
 
                 print("❌ Record not found.")
+
+        except Exception as e:
+
+            logging.error(str(e))
+
+            print(f"❌ {e}")
+            
+    def dashboard(self):
+
+        try:
+
+            with open("career_data.json", "r") as file:
+                careers = json.load(file)
+
+            total_users = len(careers)
+
+            career_count = {}
+
+            for record in careers:
+
+                career = record["career"]
+
+                if career in career_count:
+                    career_count[career] += 1
+                else:
+                    career_count[career] = 1
+
+            print("\n========== DASHBOARD ==========")
+            print(f"Total Users : {total_users}")
+            print(f"Total Career Records : {total_users}")
+
+            print("\nCareer Statistics:")
+
+            for career, count in career_count.items():
+                print(f"{career.title()} : {count}")
+                
+                print("\nCareer Percentage:")
+
+                for career, count in career_count.items():
+
+                    percentage = (count / total_users) * 100
+
+                    print(f"{career.title()} : {percentage:.2f}%")
+                
+                if career_count:
+
+                    popular_career = max(
+                        career_count,
+                        key=career_count.get
+                    )
+
+                    print(
+                        f"\n🏆 Most Popular Career : {popular_career.title()}"
+                    )
 
         except Exception as e:
 
