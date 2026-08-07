@@ -30,7 +30,10 @@ class CareerCopilot(Person, CareerFeatures):
         print("4. Interview Preparation")
         print("5. Career History")
         print("6. Export Career History to CSV")
-        print("7. Exit")
+        print("7. Search Career Record")
+        print("8. Update Career Record")
+        print("9. Delete Career Record")
+        print("10. Exit")
 
         return input("Enter your choice: ")
     
@@ -77,11 +80,20 @@ class CareerCopilot(Person, CareerFeatures):
             self.export_to_csv()
 
         elif choice == "7":
+            self.search_career()
+            
+        elif choice == "8":
+            self.update_career()
+
+        elif choice == "9":
+            self.delete_career()
+
+        elif choice == "10":
             print("\nThank you for using AI Career Copilot!")
             return False
 
         else:
-            print("\n❌ Invalid choice! Please select 1 to 7.")
+            print("\n❌ Invalid choice! Please select 1 to 10.")
 
         return True
             
@@ -139,6 +151,131 @@ class CareerCopilot(Person, CareerFeatures):
             print("✅ Career history exported to career_history.csv")
 
             logging.info("Career history exported to CSV.")
+
+        except Exception as e:
+
+            logging.error(str(e))
+
+            print(f"❌ {e}")
+            
+            
+    def search_career(self):
+
+        search_name = input("Enter name to search: ").strip().lower()
+
+        try:
+
+            with open("career_data.json", "r") as file:
+                careers = json.load(file)
+
+            found = False
+
+            for record in careers:
+
+                if record["name"].lower() == search_name:
+
+                    print("\n========== Record Found ==========")
+                    print(f"Name   : {record['name']}")
+                    print(f"Career : {record['career']}")
+                    print("=" * 32)
+
+                    found = True
+
+                    logging.info(f"Search successful for {search_name}")
+
+                    break
+
+            if not found:
+
+                print("❌ No record found.")
+
+                logging.warning(f"Search failed for {search_name}")
+
+        except Exception as e:
+
+            logging.error(str(e))
+
+            print(f"❌ {e}")
+            
+    def update_career(self):
+
+        update_name = input("Enter name to update: ").strip().lower()
+
+        try:
+
+            with open("career_data.json", "r") as file:
+                careers = json.load(file)
+
+            updated = False
+
+            for record in careers:
+
+                if record["name"].lower() == update_name:
+
+                    print(f"\nCurrent Career: {record['career']}")
+
+                    new_career = get_career_interest()
+
+                    record["career"] = new_career
+
+                    updated = True
+
+                    break
+
+            if updated:
+
+                with open("career_data.json", "w") as file:
+                    json.dump(careers, file, indent=4)
+
+                print("✅ Career updated successfully!")
+
+                logging.info(f"Career updated for {update_name}")
+
+            else:
+
+                print("❌ Record not found.")
+
+        except Exception as e:
+
+            logging.error(str(e))
+
+            print(f"❌ {e}")
+            
+    def delete_career(self):
+
+        delete_name = input("Enter name to delete: ").strip().lower()
+
+        try:
+
+            with open("career_data.json", "r") as file:
+                careers = json.load(file)
+
+            updated_list = []
+
+            deleted = False
+
+            for record in careers:
+
+                if record["name"].lower() == delete_name:
+
+                    deleted = True
+
+                    continue
+
+                updated_list.append(record)
+
+            if deleted:
+
+                with open("career_data.json", "w") as file:
+                    json.dump(updated_list, file, indent=4)
+
+                print("✅ Career record deleted successfully!")
+
+                logging.info(f"Career deleted for {delete_name}")
+
+            else:
+
+                print("❌ Record not found.")
 
         except Exception as e:
 
