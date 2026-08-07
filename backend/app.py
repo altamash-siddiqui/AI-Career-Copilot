@@ -1,6 +1,7 @@
 import json
 import logging
 import csv
+import shutil
 
 from person import Person
 from career_features import CareerFeatures
@@ -36,8 +37,11 @@ class CareerCopilot(Person, CareerFeatures):
         print("9. Delete Career Record")
         print("10. Dashboard")
         print("11. Export Career Report (TXT)")
-        print("12. Exit")
-
+        print("12. Mark Favorite Career")
+        print("13. View Favorite Careers")
+        print("14. Backup Career Data")
+        print("15. Restore Backup")
+        print("16. Exit")
         return input("Enter your choice: ")
     
     
@@ -56,7 +60,8 @@ class CareerCopilot(Person, CareerFeatures):
             careers.append({
                 "name": self.get_name(),
                 "career": interest,
-                "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                "favorite": False
             })
 
             with open("career_data.json", "w") as file:
@@ -99,11 +104,23 @@ class CareerCopilot(Person, CareerFeatures):
             self.export_to_txt()
             
         elif choice == "12":
+            self.mark_favorite()
+            
+        elif choice == "13":
+            self.view_favorites()
+            
+        elif choice == "14":
+            self.backup_data()
+
+        elif choice == "15":
+            self.restore_data()
+
+        elif choice == "16":
             print("\nThank you for using AI Career Copilot!")
             return False
 
         else:
-            print("\n❌ Invalid choice! Please select 1 to 12.")
+            print("\n❌ Invalid choice! Please select 1 to 16.")
 
         return True
             
@@ -349,6 +366,99 @@ class CareerCopilot(Person, CareerFeatures):
 
             print(f"❌ {e}")
             
+    def mark_favorite(self):
+
+        favorite_name = input("Enter name to mark as favorite: ").strip().lower()
+
+        try:
+
+            with open("career_data.json", "r") as file:
+                careers = json.load(file)
+
+            found = False
+
+            for record in careers:
+
+                if record["name"].lower() == favorite_name:
+
+                    record["favorite"] = True
+
+                    found = True
+
+                    break
+
+            if found:
+
+                with open("career_data.json", "w") as file:
+                    json.dump(careers, file, indent=4)
+
+                print("⭐ Career marked as Favorite!")
+
+                logging.info(f"{favorite_name} marked as favorite.")
+
+            else:
+
+                print("❌ Record not found.")
+
+        except Exception as e:
+
+            logging.error(str(e))
+
+            print(f"❌ {e}")
+            
+    def view_favorites(self):
+
+        try:
+
+            with open("career_data.json", "r") as file:
+                careers = json.load(file)
+
+            found = False
+
+            print("\n========== Favorite Careers ==========")
+
+            for record in careers:
+
+                if record.get("favorite", False):
+
+                    print(f"\nName       : {record['name']}")
+                    print(f"Career     : {record['career']}")
+
+                    if "timestamp" in record:
+                        print(f"Created On : {record['timestamp']}")
+
+                    print("⭐ Favorite")
+
+                    found = True
+
+            if not found:
+                print("No favorite careers found.")
+
+        except Exception as e:
+
+            logging.error(str(e))
+
+            print(f"❌ {e}")
+            
+    def backup_data(self):
+
+        try:
+
+            shutil.copy(
+                "career_data.json",
+                "career_data_backup.json"
+            )
+
+            print("✅ Backup created successfully!")
+
+            logging.info("Career data backup created.")
+
+        except Exception as e:
+
+            logging.error(str(e))
+
+            print(f"❌ {e}")
+            
     def export_to_txt(self):
 
         try:
@@ -373,6 +483,25 @@ class CareerCopilot(Person, CareerFeatures):
             print("✅ Career report exported successfully!")
 
             logging.info("Career report exported to TXT.")
+
+        except Exception as e:
+
+            logging.error(str(e))
+
+            print(f"❌ {e}")
+            
+    def restore_data(self):
+
+        try:
+
+            shutil.copy(
+                "career_data_backup.json",
+                "career_data.json"
+            )
+
+            print("✅ Data restored successfully!")
+
+            logging.info("Career data restored from backup.")
 
         except Exception as e:
 
