@@ -37,3 +37,19 @@
 2026-08-07 23:59:22,300 - INFO - User entered name: Anas
 2026-08-07 23:59:39,784 - INFO - Career selected: python
 2026-08-07 23:59:39,786 - INFO - Career selected: python
+2026-08-08 00:20:32,716 - INFO - User entered name: Altamash
+2026-08-08 00:20:55,493 - INFO - Search successful for altamash
+2026-08-08 00:21:07,173 - WARNING - Search failed for siddiqui
+2026-08-08 00:21:27,081 - INFO - Search successful for alt
+2026-08-08 00:31:32,053 - INFO - User entered name: Altamash
+2026-08-08 00:32:52,198 - INFO - User entered name: Asghar
+2026-08-08 00:33:01,936 - INFO - Career selected: ai
+2026-08-08 00:33:01,937 - INFO - Career selected: ai
+2026-08-08 00:38:54,421 - INFO - User entered name: Sami
+2026-08-08 00:39:01,644 - INFO - Career selected: ai
+2026-08-08 00:39:01,646 - INFO - Career selected: ai
+2026-08-08 00:49:16,972 - WARNING - Search failed for python -u "c:\users\siddi\onedrive\desktop\ai-career-copilot\backend\app.py"
+2026-08-08 00:49:51,190 - INFO - User entered name: Rahul
+2026-08-08 00:50:03,407 - INFO - Career selected: ai
+2026-08-08 00:50:03,408 - INFO - Career selected: ai
+2026-08-08 00:50:05,719 - INFO - Career report exported to TXT.

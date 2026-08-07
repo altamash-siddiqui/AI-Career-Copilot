@@ -5,6 +5,7 @@ import csv
 from person import Person
 from career_features import CareerFeatures
 from utils import get_user_name, get_career_interest
+from datetime import datetime
 
 class CareerCopilot(Person, CareerFeatures):
 
@@ -34,7 +35,8 @@ class CareerCopilot(Person, CareerFeatures):
         print("8. Update Career Record")
         print("9. Delete Career Record")
         print("10. Dashboard")
-        print("11. Exit")
+        print("11. Export Career Report (TXT)")
+        print("12. Exit")
 
         return input("Enter your choice: ")
     
@@ -53,7 +55,8 @@ class CareerCopilot(Person, CareerFeatures):
 
             careers.append({
                 "name": self.get_name(),
-                "career": interest
+                "career": interest,
+                "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             })
 
             with open("career_data.json", "w") as file:
@@ -93,11 +96,14 @@ class CareerCopilot(Person, CareerFeatures):
             self.dashboard()
 
         elif choice == "11":
+            self.export_to_txt()
+            
+        elif choice == "12":
             print("\nThank you for using AI Career Copilot!")
             return False
 
         else:
-            print("\n❌ Invalid choice! Please select 1 to 11.")
+            print("\n❌ Invalid choice! Please select 1 to 12.")
 
         return True
             
@@ -176,11 +182,15 @@ class CareerCopilot(Person, CareerFeatures):
 
             for record in careers:
 
-                if record["name"].lower() == search_name:
+                if search_name in record["name"].lower():
 
                     print("\n========== Record Found ==========")
-                    print(f"Name   : {record['name']}")
-                    print(f"Career : {record['career']}")
+                    print(f"Name       : {record['name']}")
+                    print(f"Career     : {record['career']}")
+
+                    if "timestamp" in record:
+                        print(f"Created On : {record['timestamp']}")
+
                     print("=" * 32)
 
                     found = True
@@ -315,25 +325,54 @@ class CareerCopilot(Person, CareerFeatures):
 
             for career, count in career_count.items():
                 print(f"{career.title()} : {count}")
-                
-                print("\nCareer Percentage:")
 
-                for career, count in career_count.items():
+            if career_count:
 
-                    percentage = (count / total_users) * 100
+                popular_career = max(
+                    career_count,
+                    key=career_count.get
+                )
 
-                    print(f"{career.title()} : {percentage:.2f}%")
-                
-                if career_count:
+                print(f"\n🏆 Most Popular Career : {popular_career.title()}")
 
-                    popular_career = max(
-                        career_count,
-                        key=career_count.get
-                    )
+            print("\nCareer Percentage:")
 
-                    print(
-                        f"\n🏆 Most Popular Career : {popular_career.title()}"
-                    )
+            for career, count in career_count.items():
+
+                percentage = (count / total_users) * 100
+
+                print(f"{career.title()} : {percentage:.2f}%")
+
+        except Exception as e:
+
+            logging.error(str(e))
+
+            print(f"❌ {e}")
+            
+    def export_to_txt(self):
+
+        try:
+
+            with open("career_data.json", "r") as file:
+                careers = json.load(file)
+
+            with open("career_report.txt", "w") as report:
+
+                report.write("========== AI Career Copilot Report ==========\n\n")
+
+                for record in careers:
+
+                    report.write(f"Name       : {record['name']}\n")
+                    report.write(f"Career     : {record['career']}\n")
+
+                    if "timestamp" in record:
+                        report.write(f"Created On : {record['timestamp']}\n")
+
+                    report.write("-" * 40 + "\n")
+
+            print("✅ Career report exported successfully!")
+
+            logging.info("Career report exported to TXT.")
 
         except Exception as e:
 

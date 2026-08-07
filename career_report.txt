@@ -1,0 +1,26 @@
+========== AI Career Copilot Report ==========
+
+Name       : Altamash
+Career     : ai
+----------------------------------------
+Name       : Asas
+Career     : web
+----------------------------------------
+Name       : Ashraf
+Career     : python
+----------------------------------------
+Name       : Anas
+Career     : python
+----------------------------------------
+Name       : Asghar
+Career     : ai
+Created On : 2026-08-08 00:33:01
+----------------------------------------
+Name       : Sami
+Career     : ai
+Created On : 2026-08-08 00:39:01
+----------------------------------------
+Name       : Rahul
+Career     : ai
+Created On : 2026-08-08 00:50:03
+----------------------------------------

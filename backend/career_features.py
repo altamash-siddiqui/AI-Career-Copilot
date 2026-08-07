@@ -112,9 +112,15 @@ class CareerFeatures:
                 return
 
             for career in careers:
-                print(f"Name: {career['name']}")
-                print(f"Career: {career['career']}")
-                print("-" * 30)
+
+                print("\n------------------------------")
+                print(f"Name       : {career['name']}")
+                print(f"Career     : {career['career']}")
+
+                if "timestamp" in career:
+                    print(f"Created On : {career['timestamp']}")
+
+                print("------------------------------")
 
         except FileNotFoundError:
             print("No career history found.")
