@@ -1,5 +1,6 @@
 import json
 
+
 class CareerFeatures:
 
     def resume_analysis(self):
@@ -11,6 +12,7 @@ class CareerFeatures:
         print("\n========== Resume Analysis ==========")
 
         print("\nYour Skills:")
+
         for skill in skills_list:
             print("-", skill.strip())
 
@@ -25,9 +27,13 @@ class CareerFeatures:
 
         print("\nSkill Check:")
 
-        user_skills = [skill.strip().lower() for skill in skills_list]
+        user_skills = [
+            skill.strip().lower()
+            for skill in skills_list
+        ]
 
         for skill in required_skills:
+
             if skill in user_skills:
                 print(f"✅ {skill.capitalize()} - Available")
             else:
@@ -38,7 +44,9 @@ class CareerFeatures:
 
         score = 0
 
-        skills = input("Enter your skills (comma separated): ").lower()
+        skills = input(
+            "Enter your skills (comma separated): "
+        ).lower()
 
         if "python" in skills:
             score += 25
@@ -57,8 +65,10 @@ class CareerFeatures:
 
         if score >= 75:
             print("✅ Excellent Resume")
+
         elif score >= 50:
             print("👍 Good Resume")
+
         else:
             print("⚠ Improve your Resume")
 
@@ -94,7 +104,11 @@ class CareerFeatures:
             print("\nSample Answer:")
             print(answers[i])
 
-        print(f"\n🏆 Your Practice Score: {score}/{len(questions)}")
+        print(
+            f"\n🏆 Your Practice Score: "
+            f"{score}/{len(questions)}"
+        )
+
         print("🎉 Interview Practice Completed!")
 
 
@@ -107,20 +121,49 @@ class CareerFeatures:
             with open("career_data.json", "r") as file:
                 careers = json.load(file)
 
-            if len(careers) == 0:
-                print("No career history found.")
-                return
+            found = False
 
             for career in careers:
 
+                # Show only current user's records
+                if career.get("user") != self.current_user:
+                    continue
+
                 print("\n------------------------------")
-                print(f"Name       : {career['name']}")
-                print(f"Career     : {career['career']}")
+
+                print(
+                    f"Name       : {career['name']}"
+                )
+
+                print(
+                    f"Career     : {career['career']}"
+                )
 
                 if "timestamp" in career:
-                    print(f"Created On : {career['timestamp']}")
+
+                    print(
+                        f"Created On : {career['timestamp']}"
+                    )
+
+                if career.get("favorite", False):
+
+                    print("⭐ Favorite")
 
                 print("------------------------------")
 
+                found = True
+
+            if not found:
+
+                print(
+                    "No career history found for "
+                    "the current user."
+                )
+
         except FileNotFoundError:
+
             print("No career history found.")
+
+        except Exception as e:
+
+            print(f"❌ Error: {e}")

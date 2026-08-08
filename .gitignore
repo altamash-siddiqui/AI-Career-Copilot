@@ -1,0 +1,23 @@
+# Python cache
+__pycache__/
+*.pyc
+
+# Logs
+*.log
+
+# User authentication data
+users.json
+backend/users.json
+
+# Local career data
+career_data.json
+career_data_backup.json
+
+# Generated reports
+career_history.csv
+career_report.txt
+
+# Environment
+.env
+.venv/
+venv/
