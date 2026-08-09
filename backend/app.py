@@ -1471,7 +1471,7 @@ class CareerCopilot(Person, CareerFeatures):
 
     def dashboard(self):
 
-        # Clean duplicates first
+        # Clean duplicate records first
         self.clean_duplicate_records()
 
         careers = self.load_career_data()
@@ -1516,6 +1516,175 @@ class CareerCopilot(Person, CareerFeatures):
 
         total_completed_steps = 0
 
+        print(
+            "\n========== DASHBOARD =========="
+        )
+
+        print(
+            f"👤 User : "
+            f"{self.current_user}"
+        )
+
+        # ------------------------------------------------
+        # CURRENT CAREER
+        # ------------------------------------------------
+
+        current_record = user_records[
+            -1
+        ]
+
+        current_career = current_record.get(
+            "career",
+            "Unknown"
+        ).title()
+
+        current_progress = int(
+            current_record.get(
+                "progress",
+                0
+            )
+        )
+
+        current_completed_steps = current_record.get(
+            "completed_steps",
+            []
+        )
+
+        roadmap = self.get_roadmap(
+            current_record.get(
+                "career",
+                ""
+            )
+        )
+
+        total_steps = len(
+            roadmap
+        )
+
+        completed_count = len(
+            current_completed_steps
+        )
+
+        remaining_steps = (
+            total_steps
+            -
+            completed_count
+        )
+
+        if remaining_steps < 0:
+
+            remaining_steps = 0
+
+        # ------------------------------------------------
+        # CAREER STATUS
+        # ------------------------------------------------
+
+        if current_progress == 100:
+
+            career_status = (
+                "🏆 Completed"
+            )
+
+        elif current_progress > 0:
+
+            career_status = (
+                "🚀 In Progress"
+            )
+
+        else:
+
+            career_status = (
+                "⏳ Not Started"
+            )
+
+        # ------------------------------------------------
+        # FAVORITE STATUS
+        # ------------------------------------------------
+
+        if current_record.get(
+            "favorite",
+            False
+        ):
+
+            favorite_status = (
+                "⭐ Favorite"
+            )
+
+        else:
+
+            favorite_status = (
+                "☆ Not Favorite"
+            )
+
+        # ------------------------------------------------
+        # CURRENT CAREER SECTION
+        # ------------------------------------------------
+
+        print(
+            "\n========== CURRENT CAREER =========="
+        )
+
+        print(
+            f"🎯 Career : "
+            f"{current_career}"
+        )
+
+        print(
+            f"📈 Progress : "
+            f"{current_progress}%"
+        )
+
+        # Progress Bar
+
+        bar_length = 20
+
+        filled_length = int(
+            bar_length
+            *
+            current_progress
+            /
+            100
+        )
+
+        progress_bar = (
+            "█" * filled_length
+            +
+            "░" * (
+                bar_length
+                -
+                filled_length
+            )
+        )
+
+        print(
+            f"[{progress_bar}]"
+        )
+
+        print(
+            f"✅ Completed Steps : "
+            f"{completed_count}/"
+            f"{total_steps}"
+        )
+
+        print(
+            f"⏳ Remaining Steps : "
+            f"{remaining_steps}"
+        )
+
+        print(
+            f"📌 Status : "
+            f"{career_status}"
+        )
+
+        print(
+            f"Favorite : "
+            f"{favorite_status}"
+        )
+
+        # ------------------------------------------------
+        # ALL USER CAREER RECORDS
+        # ------------------------------------------------
+
         for record in user_records:
 
             career = record.get(
@@ -1554,13 +1723,12 @@ class CareerCopilot(Person, CareerFeatures):
             total_records
         )
 
-        print(
-            "\n========== DASHBOARD =========="
-        )
+        # ------------------------------------------------
+        # OVERALL STATISTICS
+        # ------------------------------------------------
 
         print(
-            f"👤 User : "
-            f"{self.current_user}"
+            "\n========== OVERALL STATISTICS =========="
         )
 
         print(
@@ -1569,17 +1737,21 @@ class CareerCopilot(Person, CareerFeatures):
         )
 
         print(
-            f"📈 Average Roadmap Progress : "
+            f"📈 Average Progress : "
             f"{average_progress:.2f}%"
         )
 
         print(
-            f"✅ Completed Roadmap Steps : "
+            f"✅ Total Completed Steps : "
             f"{total_completed_steps}"
         )
 
+        # ------------------------------------------------
+        # CAREER STATISTICS
+        # ------------------------------------------------
+
         print(
-            "\nCareer Statistics:"
+            "\n========== CAREER STATISTICS =========="
         )
 
         for career, count in career_count.items():
@@ -1596,6 +1768,10 @@ class CareerCopilot(Person, CareerFeatures):
                 f"({percentage:.2f}%)"
             )
 
+        # ------------------------------------------------
+        # MOST POPULAR CAREER
+        # ------------------------------------------------
+
         if career_count:
 
             popular_career = max(
@@ -1608,15 +1784,20 @@ class CareerCopilot(Person, CareerFeatures):
                 f"{popular_career.title()}"
             )
 
+        # ------------------------------------------------
+        # ALL CAREER PROGRESS
+        # ------------------------------------------------
+
         print(
-            "\n========== PROGRESS =========="
+            "\n========== ALL CAREER PROGRESS =========="
         )
 
         for record in user_records:
 
-            career = record[
-                "career"
-            ].title()
+            career = record.get(
+                "career",
+                "Unknown"
+            ).title()
 
             progress = int(
                 record.get(
@@ -1630,27 +1811,97 @@ class CareerCopilot(Person, CareerFeatures):
                 []
             )
 
-            print(
-                f"\n{career}"
+            roadmap = self.get_roadmap(
+                record.get(
+                    "career",
+                    ""
+                )
             )
 
-            print(
-                f"Progress : "
-                f"{progress}%"
+            total_steps = len(
+                roadmap
             )
-            
+
+            completed_count = len(
+                completed_steps
+            )
+
+            remaining_steps = (
+                total_steps
+                -
+                completed_count
+            )
+
+            if remaining_steps < 0:
+
+                remaining_steps = 0
+
+            # Progress Bar
+
             bar_length = 20
 
             filled_length = int(
-                bar_length * progress / 100
+                bar_length
+                *
+                progress
+                /
+                100
             )
 
             progress_bar = (
                 "█" * filled_length
                 +
                 "░" * (
-                    bar_length - filled_length
+                    bar_length
+                    -
+                    filled_length
                 )
+            )
+
+            # Status
+
+            if progress == 100:
+
+                status = (
+                    "🏆 Completed"
+                )
+
+            elif progress > 0:
+
+                status = (
+                    "🚀 In Progress"
+                )
+
+            else:
+
+                status = (
+                    "⏳ Not Started"
+                )
+
+            # Favorite
+
+            if record.get(
+                "favorite",
+                False
+            ):
+
+                favorite = (
+                    "⭐ Favorite"
+                )
+
+            else:
+
+                favorite = (
+                    "☆ Not Favorite"
+                )
+
+            print(
+                f"\n🎯 {career}"
+            )
+
+            print(
+                f"Progress : "
+                f"{progress}%"
             )
 
             print(
@@ -1658,30 +1909,28 @@ class CareerCopilot(Person, CareerFeatures):
             )
 
             print(
-                f"Completed Steps : "
-                f"{len(completed_steps)}"
+                f"Completed : "
+                f"{completed_count}/"
+                f"{total_steps}"
             )
 
-            if progress == 100:
+            print(
+                f"Remaining : "
+                f"{remaining_steps}"
+            )
 
-                print(
-                    "Status : 🏆 Completed"
-                )
+            print(
+                f"Status : "
+                f"{status}"
+            )
 
-            elif progress > 0:
-
-                print(
-                    "Status : 🚀 In Progress"
-                )
-
-            else:
-
-                print(
-                    "Status : ⏳ Not Started"
-                )
+            print(
+                f"Favorite : "
+                f"{favorite}"
+            )
 
         print(
-            "\n" + "=" * 40
+            "\n" + "=" * 45
         )
 
 
