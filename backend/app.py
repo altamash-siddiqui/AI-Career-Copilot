@@ -102,18 +102,19 @@ ROADMAPS = {
 class CareerCopilot(Person, CareerFeatures):
 
     def __init__(self):
-
         super().__init__()
-
         self.current_user = None
-        
+
+    # ========================================================
+    # GET ROADMAP
+    # ========================================================
+
     def get_roadmap(self, interest):
 
         return ROADMAPS.get(
             interest.lower(),
             []
         )
-
 
     # ========================================================
     # WELCOME
@@ -124,7 +125,6 @@ class CareerCopilot(Person, CareerFeatures):
         print("=" * 40)
         print("        AI Career Copilot")
         print("=" * 40)
-
 
     def welcome_user(self):
 
@@ -138,7 +138,6 @@ class CareerCopilot(Person, CareerFeatures):
 
         print("=" * 40)
 
-
     # ========================================================
     # DATA HELPERS
     # ========================================================
@@ -148,7 +147,6 @@ class CareerCopilot(Person, CareerFeatures):
         try:
 
             if not os.path.exists(DATA_FILE):
-
                 return []
 
             with open(
@@ -159,7 +157,6 @@ class CareerCopilot(Person, CareerFeatures):
                 data = json.load(file)
 
             if not isinstance(data, list):
-
                 return []
 
             return data
@@ -172,20 +169,30 @@ class CareerCopilot(Person, CareerFeatures):
 
             return []
 
-
     def save_career_data(self, careers):
 
-        with open(
-            DATA_FILE,
-            "w"
-        ) as file:
+        try:
 
-            json.dump(
-                careers,
-                file,
-                indent=4
+            with open(
+                DATA_FILE,
+                "w"
+            ) as file:
+
+                json.dump(
+                    careers,
+                    file,
+                    indent=4
+                )
+
+        except Exception as e:
+
+            logging.error(
+                f"Error saving career data: {e}"
             )
 
+            print(
+                f"❌ Unable to save career data: {e}"
+            )
 
     # ========================================================
     # CLEAN / MIGRATE OLD DATA
@@ -196,10 +203,7 @@ class CareerCopilot(Person, CareerFeatures):
         careers = self.load_career_data()
 
         if not careers:
-
             return
-
-        cleaned = []
 
         record_map = {}
 
@@ -216,10 +220,8 @@ class CareerCopilot(Person, CareerFeatures):
             ).strip().lower()
 
             if not name or not career:
-
                 continue
 
-            # Old records didn't have "user"
             user = record.get(
                 "user",
                 name
@@ -227,12 +229,18 @@ class CareerCopilot(Person, CareerFeatures):
 
             record["user"] = user
 
-            record["progress"] = int(
-                record.get(
-                    "progress",
-                    0
+            try:
+
+                record["progress"] = int(
+                    record.get(
+                        "progress",
+                        0
+                    )
                 )
-            )
+
+            except (ValueError, TypeError):
+
+                record["progress"] = 0
 
             record["favorite"] = bool(
                 record.get(
@@ -253,8 +261,6 @@ class CareerCopilot(Person, CareerFeatures):
 
                 record["completed_steps"] = []
 
-            # Same user + same career
-            # will use one record.
             key = (
                 str(user).lower(),
                 career
@@ -268,7 +274,6 @@ class CareerCopilot(Person, CareerFeatures):
 
                 existing = record_map[key]
 
-                # Keep highest progress
                 existing["progress"] = max(
                     int(
                         existing.get(
@@ -284,7 +289,6 @@ class CareerCopilot(Person, CareerFeatures):
                     )
                 )
 
-                # Merge completed steps
                 existing_steps = set(
                     existing.get(
                         "completed_steps",
@@ -299,16 +303,11 @@ class CareerCopilot(Person, CareerFeatures):
                     )
                 )
 
-                existing[
-                    "completed_steps"
-                ] = list(
+                existing["completed_steps"] = list(
                     existing_steps | new_steps
                 )
 
-                # Keep favorite if either is favorite
-                existing[
-                    "favorite"
-                ] = (
+                existing["favorite"] = (
                     existing.get(
                         "favorite",
                         False
@@ -320,14 +319,9 @@ class CareerCopilot(Person, CareerFeatures):
                     )
                 )
 
-                # Keep timestamp if missing
-                if not existing.get(
-                    "timestamp"
-                ):
+                if not existing.get("timestamp"):
 
-                    existing[
-                        "timestamp"
-                    ] = record.get(
+                    existing["timestamp"] = record.get(
                         "timestamp"
                     )
 
@@ -342,7 +336,6 @@ class CareerCopilot(Person, CareerFeatures):
         logging.info(
             "Career duplicate cleanup completed."
         )
-
 
     # ========================================================
     # AUTHENTICATION
@@ -361,17 +354,14 @@ class CareerCopilot(Person, CareerFeatures):
         if not username or not password:
 
             print(
-                "❌ Username and password "
-                "cannot be empty!"
+                "❌ Username and password cannot be empty!"
             )
 
             return False
 
         try:
 
-            if os.path.exists(
-                USERS_FILE
-            ):
+            if os.path.exists(USERS_FILE):
 
                 with open(
                     USERS_FILE,
@@ -412,16 +402,26 @@ class CareerCopilot(Person, CareerFeatures):
             }
         )
 
-        with open(
-            USERS_FILE,
-            "w"
-        ) as file:
+        try:
 
-            json.dump(
-                users,
-                file,
-                indent=4
+            with open(
+                USERS_FILE,
+                "w"
+            ) as file:
+
+                json.dump(
+                    users,
+                    file,
+                    indent=4
+                )
+
+        except Exception as e:
+
+            print(
+                f"❌ Registration failed: {e}"
             )
+
+            return False
 
         print(
             "✅ Registration Successful!"
@@ -433,6 +433,9 @@ class CareerCopilot(Person, CareerFeatures):
 
         return True
 
+    # ========================================================
+    # LOGIN
+    # ========================================================
 
     def login_user(self):
 
@@ -456,8 +459,7 @@ class CareerCopilot(Person, CareerFeatures):
         except FileNotFoundError:
 
             print(
-                "❌ No users found! "
-                "Please register first."
+                "❌ No users found! Please register first."
             )
 
             return False
@@ -489,15 +491,13 @@ class CareerCopilot(Person, CareerFeatures):
                 self.current_user = username
 
                 print(
-                    f"\n✅ Welcome back, "
-                    f"{username}!"
+                    f"\n✅ Welcome back, {username}!"
                 )
 
                 logging.info(
                     f"{username} logged in."
                 )
 
-                # Clean old duplicate data
                 self.clean_duplicate_records()
 
                 return True
@@ -512,6 +512,9 @@ class CareerCopilot(Person, CareerFeatures):
 
         return False
 
+    # ========================================================
+    # AUTHENTICATION MENU
+    # ========================================================
 
     def authentication_menu(self):
 
@@ -521,17 +524,9 @@ class CareerCopilot(Person, CareerFeatures):
                 "\n========== Authentication =========="
             )
 
-            print(
-                "1. Register"
-            )
-
-            print(
-                "2. Login"
-            )
-
-            print(
-                "3. Exit"
-            )
+            print("1. Register")
+            print("2. Login")
+            print("3. Exit")
 
             choice = input(
                 "Enter your choice: "
@@ -544,7 +539,6 @@ class CareerCopilot(Person, CareerFeatures):
             elif choice == "2":
 
                 if self.login_user():
-
                     return True
 
             elif choice == "3":
@@ -563,9 +557,8 @@ class CareerCopilot(Person, CareerFeatures):
                     "Please select 1 to 3."
                 )
 
-
     # ========================================================
-    # MENU
+    # MAIN MENU
     # ========================================================
 
     def show_menu(self):
@@ -574,158 +567,84 @@ class CareerCopilot(Person, CareerFeatures):
             "\n========== MAIN MENU =========="
         )
 
-        print(
-            "1. Career Roadmap"
-        )
-
-        print(
-            "2. Resume Analysis"
-        )
-
-        print(
-            "3. ATS Score"
-        )
-
-        print(
-            "4. Interview Preparation"
-        )
-
-        print(
-            "5. Career History"
-        )
-
-        print(
-            "6. Export Career History to CSV"
-        )
-
-        print(
-            "7. Search Career Record"
-        )
-
-        print(
-            "8. Update Career Record"
-        )
-
-        print(
-            "9. Delete Career Record"
-        )
-
-        print(
-            "10. Dashboard"
-        )
-
-        print(
-            "11. Export Career Report (TXT)"
-        )
-
-        print(
-            "12. Mark Favorite Career"
-        )
-
-        print(
-            "13. View Favorite Careers"
-        )
-
-        print(
-            "14. Backup Career Data"
-        )
-
-        print(
-            "15. Restore Backup"
-        )
-
-        print(
-            "16. Update Roadmap Progress"
-        )
-
-        print(
-            "17. Complete Roadmap Step"
-        )
-
-        print(
-            "18. Exit"
-        )
+        print("1. Career Roadmap")
+        print("2. Resume Analysis")
+        print("3. ATS Score")
+        print("4. Interview Preparation")
+        print("5. Career History")
+        print("6. Export Career History to CSV")
+        print("7. Search Career Record")
+        print("8. Update Career Record")
+        print("9. Delete Career Record")
+        print("10. Dashboard")
+        print("11. Export Career Report (TXT)")
+        print("12. Mark Favorite Career")
+        print("13. View Favorite Careers")
+        print("14. Backup Career Data")
+        print("15. Restore Backup")
+        print("16. Update Roadmap Progress")
+        print("17. Complete Roadmap Step")
+        print("18. Exit")
 
         return input(
             "Enter your choice: "
         ).strip()
 
-
     # ========================================================
     # PROCESS CHOICE
     # ========================================================
 
-    def process_choice(
-        self,
-        choice
-    ):
+    def process_choice(self, choice):
 
         if choice == "1":
-
             self.select_career()
 
         elif choice == "2":
-
             self.resume_analysis()
 
         elif choice == "3":
-
             self.ats_score()
 
         elif choice == "4":
-
             self.interview_preparation()
 
         elif choice == "5":
-
             self.career_history()
 
         elif choice == "6":
-
             self.export_to_csv()
 
         elif choice == "7":
-
             self.search_career()
 
         elif choice == "8":
-
             self.update_career()
 
         elif choice == "9":
-
             self.delete_career()
 
         elif choice == "10":
-
             self.dashboard()
 
         elif choice == "11":
-
             self.export_to_txt()
 
         elif choice == "12":
-
             self.mark_favorite()
 
         elif choice == "13":
-
             self.view_favorites()
 
         elif choice == "14":
-
             self.backup_data()
 
         elif choice == "15":
-
             self.restore_data()
 
         elif choice == "16":
-
             self.update_progress()
 
         elif choice == "17":
-
             self.complete_roadmap_step()
 
         elif choice == "18":
@@ -745,7 +664,6 @@ class CareerCopilot(Person, CareerFeatures):
             )
 
         return True
-
 
     # ========================================================
     # SELECT CAREER
@@ -777,11 +695,6 @@ class CareerCopilot(Person, CareerFeatures):
 
         current_user = self.current_user.lower()
 
-        # ====================================================
-        # FIND CURRENT USER'S EXISTING CAREER RECORD
-        # ONE USER = ONE ACTIVE CAREER RECORD
-        # ====================================================
-
         existing_record = None
 
         for record in careers:
@@ -803,12 +716,10 @@ class CareerCopilot(Person, CareerFeatures):
             ):
 
                 existing_record = record
-
                 break
 
         # ====================================================
-        # USER ALREADY EXISTS
-        # UPDATE EXISTING CAREER
+        # EXISTING USER
         # ====================================================
 
         if existing_record:
@@ -818,17 +729,14 @@ class CareerCopilot(Person, CareerFeatures):
                 ""
             ).lower()
 
-            # Same career selected again
             if old_career == interest:
 
                 print(
-                    "\n⚠ You already selected "
-                    "this career!"
+                    "\n⚠ You already selected this career!"
                 )
 
                 print(
-                    f"Career   : "
-                    f"{interest.title()}"
+                    f"Career   : {interest.title()}"
                 )
 
                 print(
@@ -840,7 +748,6 @@ class CareerCopilot(Person, CareerFeatures):
                     "Using your existing career record."
                 )
 
-            # Different career selected
             else:
 
                 print(
@@ -848,24 +755,17 @@ class CareerCopilot(Person, CareerFeatures):
                 )
 
                 print(
-                    f"Old Career : "
-                    f"{old_career.title()}"
+                    f"Old Career : {old_career.title()}"
                 )
 
                 print(
-                    f"New Career : "
-                    f"{interest.title()}"
+                    f"New Career : {interest.title()}"
                 )
 
-                # Update existing record
                 existing_record["career"] = interest
-
-                # Reset progress for new career
                 existing_record["progress"] = 0
-
                 existing_record["completed_steps"] = []
 
-                # Keep favorite status
                 existing_record["favorite"] = (
                     existing_record.get(
                         "favorite",
@@ -873,7 +773,6 @@ class CareerCopilot(Person, CareerFeatures):
                     )
                 )
 
-                # Keep user connected
                 existing_record["user"] = (
                     self.current_user
                 )
@@ -882,7 +781,6 @@ class CareerCopilot(Person, CareerFeatures):
                     self.get_name()
                 )
 
-                # Update timestamp
                 existing_record["timestamp"] = (
                     datetime.now().strftime(
                         "%Y-%m-%d %H:%M:%S"
@@ -898,8 +796,7 @@ class CareerCopilot(Person, CareerFeatures):
                 )
 
                 print(
-                    f"New Career : "
-                    f"{interest.title()}"
+                    f"New Career : {interest.title()}"
                 )
 
                 print(
@@ -915,7 +812,6 @@ class CareerCopilot(Person, CareerFeatures):
 
         # ====================================================
         # NEW USER
-        # CREATE FIRST CAREER RECORD
         # ====================================================
 
         else:
@@ -937,7 +833,6 @@ class CareerCopilot(Person, CareerFeatures):
                 "timestamp": datetime.now().strftime(
                     "%Y-%m-%d %H:%M:%S"
                 )
-
             }
 
             careers.append(
@@ -953,13 +848,8 @@ class CareerCopilot(Person, CareerFeatures):
             )
 
             logging.info(
-                f"New career selected: "
-                f"{interest}"
+                f"New career selected: {interest}"
             )
-
-        # ====================================================
-        # SHOW ROADMAP
-        # ====================================================
 
         self.show_career_roadmap(
             interest
@@ -986,9 +876,7 @@ class CareerCopilot(Person, CareerFeatures):
                 "for this career."
             )
 
-            print(
-                "=" * 35
-            )
+            print("=" * 35)
 
             return
 
@@ -997,8 +885,12 @@ class CareerCopilot(Person, CareerFeatures):
         for record in self.load_career_data():
 
             if (
-                record.get("user", "")
-                == self.current_user
+                record.get(
+                    "user",
+                    ""
+                ).lower()
+                ==
+                self.current_user.lower()
             ):
 
                 completed_steps = record.get(
@@ -1016,15 +908,13 @@ class CareerCopilot(Person, CareerFeatures):
             if step in completed_steps:
 
                 print(
-                    f"{index}. "
-                    f"{step} ✅"
+                    f"{index}. {step} ✅"
                 )
 
             else:
 
                 print(
-                    f"{index}. "
-                    f"{step} ⬜"
+                    f"{index}. {step} ⬜"
                 )
 
         total_steps = len(
@@ -1041,13 +931,21 @@ class CareerCopilot(Person, CareerFeatures):
             completed_count
         )
 
-        progress = int(
-            (
-                completed_count
-                /
-                total_steps
-            ) * 100
-        )
+        if total_steps > 0:
+
+            progress = int(
+                (
+                    completed_count
+                    /
+                    total_steps
+                )
+                *
+                100
+            )
+
+        else:
+
+            progress = 0
 
         bar_length = 20
 
@@ -1056,7 +954,9 @@ class CareerCopilot(Person, CareerFeatures):
                 progress
                 /
                 100
-            ) * bar_length
+            )
+            *
+            bar_length
         )
 
         progress_bar = (
@@ -1080,23 +980,19 @@ class CareerCopilot(Person, CareerFeatures):
         )
 
         print(
-            f"Total Steps     : "
-            f"{total_steps}"
+            f"Total Steps     : {total_steps}"
         )
 
         print(
-            f"Completed Steps : "
-            f"{completed_count}"
+            f"Completed Steps : {completed_count}"
         )
 
         print(
-            f"Remaining Steps : "
-            f"{remaining_steps}"
+            f"Remaining Steps : {remaining_steps}"
         )
 
         print(
-            f"Progress        : "
-            f"{progress}%"
+            f"Progress        : {progress}%"
         )
 
         if progress == 100:
@@ -1117,10 +1013,7 @@ class CareerCopilot(Person, CareerFeatures):
                 "\n⏳ Roadmap Not Started."
             )
 
-        print(
-            "=" * 35
-        )
-
+        print("=" * 35)
 
     # ========================================================
     # SEARCH CAREER
@@ -1151,7 +1044,6 @@ class CareerCopilot(Person, CareerFeatures):
                 !=
                 self.current_user.lower()
             ):
-
                 continue
 
             if (
@@ -1182,9 +1074,7 @@ class CareerCopilot(Person, CareerFeatures):
                     f"{record.get('progress', 0)}%"
                 )
 
-                if record.get(
-                    "timestamp"
-                ):
+                if record.get("timestamp"):
 
                     print(
                         f"Created On : "
@@ -1200,9 +1090,7 @@ class CareerCopilot(Person, CareerFeatures):
                         "⭐ Favorite"
                     )
 
-                print(
-                    "=" * 35
-                )
+                print("=" * 35)
 
                 found = True
 
@@ -1212,7 +1100,6 @@ class CareerCopilot(Person, CareerFeatures):
                 "❌ No record found."
             )
 
-
     # ========================================================
     # UPDATE CAREER
     # ========================================================
@@ -1221,21 +1108,19 @@ class CareerCopilot(Person, CareerFeatures):
 
         careers = self.load_career_data()
 
-        user_records = []
-
-        for record in careers:
-
+        user_records = [
+            record
+            for record in careers
             if record.get(
                 "user",
                 record.get(
                     "name",
                     ""
                 )
-            ).lower() == self.current_user.lower():
-
-                user_records.append(
-                    record
-                )
+            ).lower()
+            ==
+            self.current_user.lower()
+        ]
 
         if not user_records:
 
@@ -1272,9 +1157,7 @@ class CareerCopilot(Person, CareerFeatures):
 
             return
 
-        index = int(
-            choice
-        )
+        index = int(choice)
 
         if (
             index < 1
@@ -1299,10 +1182,9 @@ class CareerCopilot(Person, CareerFeatures):
         new_career = get_career_interest()
 
         if not new_career:
-
             return
 
-        new_career = new_career.lower()
+        new_career = new_career.lower().strip()
 
         if new_career not in ROADMAPS:
 
@@ -1312,11 +1194,9 @@ class CareerCopilot(Person, CareerFeatures):
 
             return
 
-        # Prevent duplicate after update
         for record in careers:
 
             if record is selected:
-
                 continue
 
             if (
@@ -1347,17 +1227,9 @@ class CareerCopilot(Person, CareerFeatures):
 
                 return
 
-        selected[
-            "career"
-        ] = new_career
-
-        selected[
-            "progress"
-        ] = 0
-
-        selected[
-            "completed_steps"
-        ] = []
+        selected["career"] = new_career
+        selected["progress"] = 0
+        selected["completed_steps"] = []
 
         self.save_career_data(
             careers
@@ -1368,11 +1240,9 @@ class CareerCopilot(Person, CareerFeatures):
         )
 
         print(
-            f"{old_career.title()} "
-            f"→ "
+            f"{old_career.title()} → "
             f"{new_career.title()}"
         )
-
 
     # ========================================================
     # DELETE CAREER
@@ -1382,21 +1252,19 @@ class CareerCopilot(Person, CareerFeatures):
 
         careers = self.load_career_data()
 
-        user_records = []
-
-        for record in careers:
-
+        user_records = [
+            record
+            for record in careers
             if record.get(
                 "user",
                 record.get(
                     "name",
                     ""
                 )
-            ).lower() == self.current_user.lower():
-
-                user_records.append(
-                    record
-                )
+            ).lower()
+            ==
+            self.current_user.lower()
+        ]
 
         if not user_records:
 
@@ -1432,9 +1300,7 @@ class CareerCopilot(Person, CareerFeatures):
 
             return
 
-        index = int(
-            choice
-        )
+        index = int(choice)
 
         if (
             index < 1
@@ -1464,14 +1330,12 @@ class CareerCopilot(Person, CareerFeatures):
             "✅ Career record deleted successfully!"
         )
 
-
     # ========================================================
     # DASHBOARD
     # ========================================================
 
     def dashboard(self):
 
-        # Clean duplicate records first
         self.clean_duplicate_records()
 
         careers = self.load_career_data()
@@ -1521,17 +1385,10 @@ class CareerCopilot(Person, CareerFeatures):
         )
 
         print(
-            f"👤 User : "
-            f"{self.current_user}"
+            f"👤 User : {self.current_user}"
         )
 
-        # ------------------------------------------------
-        # CURRENT CAREER
-        # ------------------------------------------------
-
-        current_record = user_records[
-            -1
-        ]
+        current_record = user_records[-1]
 
         current_career = current_record.get(
             "career",
@@ -1565,76 +1422,45 @@ class CareerCopilot(Person, CareerFeatures):
             current_completed_steps
         )
 
-        remaining_steps = (
-            total_steps
-            -
-            completed_count
+        remaining_steps = max(
+            0,
+            total_steps - completed_count
         )
-
-        if remaining_steps < 0:
-
-            remaining_steps = 0
-
-        # ------------------------------------------------
-        # CAREER STATUS
-        # ------------------------------------------------
 
         if current_progress == 100:
 
-            career_status = (
-                "🏆 Completed"
-            )
+            career_status = "🏆 Completed"
 
         elif current_progress > 0:
 
-            career_status = (
-                "🚀 In Progress"
-            )
+            career_status = "🚀 In Progress"
 
         else:
 
-            career_status = (
-                "⏳ Not Started"
-            )
-
-        # ------------------------------------------------
-        # FAVORITE STATUS
-        # ------------------------------------------------
+            career_status = "⏳ Not Started"
 
         if current_record.get(
             "favorite",
             False
         ):
 
-            favorite_status = (
-                "⭐ Favorite"
-            )
+            favorite_status = "⭐ Favorite"
 
         else:
 
-            favorite_status = (
-                "☆ Not Favorite"
-            )
-
-        # ------------------------------------------------
-        # CURRENT CAREER SECTION
-        # ------------------------------------------------
+            favorite_status = "☆ Not Favorite"
 
         print(
             "\n========== CURRENT CAREER =========="
         )
 
         print(
-            f"🎯 Career : "
-            f"{current_career}"
+            f"🎯 Career : {current_career}"
         )
 
         print(
-            f"📈 Progress : "
-            f"{current_progress}%"
+            f"📈 Progress : {current_progress}%"
         )
-
-        # Progress Bar
 
         bar_length = 20
 
@@ -1662,8 +1488,7 @@ class CareerCopilot(Person, CareerFeatures):
 
         print(
             f"✅ Completed Steps : "
-            f"{completed_count}/"
-            f"{total_steps}"
+            f"{completed_count}/{total_steps}"
         )
 
         print(
@@ -1672,18 +1497,12 @@ class CareerCopilot(Person, CareerFeatures):
         )
 
         print(
-            f"📌 Status : "
-            f"{career_status}"
+            f"📌 Status : {career_status}"
         )
 
         print(
-            f"Favorite : "
-            f"{favorite_status}"
+            f"Favorite : {favorite_status}"
         )
-
-        # ------------------------------------------------
-        # ALL USER CAREER RECORDS
-        # ------------------------------------------------
 
         for record in user_records:
 
@@ -1692,12 +1511,14 @@ class CareerCopilot(Person, CareerFeatures):
                 ""
             ).lower()
 
-            career_count[
-                career
-            ] = career_count.get(
-                career,
-                0
-            ) + 1
+            career_count[career] = (
+                career_count.get(
+                    career,
+                    0
+                )
+                +
+                1
+            )
 
             progress = int(
                 record.get(
@@ -1723,10 +1544,6 @@ class CareerCopilot(Person, CareerFeatures):
             total_records
         )
 
-        # ------------------------------------------------
-        # OVERALL STATISTICS
-        # ------------------------------------------------
-
         print(
             "\n========== OVERALL STATISTICS =========="
         )
@@ -1746,10 +1563,6 @@ class CareerCopilot(Person, CareerFeatures):
             f"{total_completed_steps}"
         )
 
-        # ------------------------------------------------
-        # CAREER STATISTICS
-        # ------------------------------------------------
-
         print(
             "\n========== CAREER STATISTICS =========="
         )
@@ -1768,10 +1581,6 @@ class CareerCopilot(Person, CareerFeatures):
                 f"({percentage:.2f}%)"
             )
 
-        # ------------------------------------------------
-        # MOST POPULAR CAREER
-        # ------------------------------------------------
-
         if career_count:
 
             popular_career = max(
@@ -1783,10 +1592,6 @@ class CareerCopilot(Person, CareerFeatures):
                 "\n🏆 Most Popular Career : "
                 f"{popular_career.title()}"
             )
-
-        # ------------------------------------------------
-        # ALL CAREER PROGRESS
-        # ------------------------------------------------
 
         print(
             "\n========== ALL CAREER PROGRESS =========="
@@ -1826,17 +1631,10 @@ class CareerCopilot(Person, CareerFeatures):
                 completed_steps
             )
 
-            remaining_steps = (
-                total_steps
-                -
-                completed_count
+            remaining_steps = max(
+                0,
+                total_steps - completed_count
             )
-
-            if remaining_steps < 0:
-
-                remaining_steps = 0
-
-            # Progress Bar
 
             bar_length = 20
 
@@ -1858,50 +1656,35 @@ class CareerCopilot(Person, CareerFeatures):
                 )
             )
 
-            # Status
-
             if progress == 100:
 
-                status = (
-                    "🏆 Completed"
-                )
+                status = "🏆 Completed"
 
             elif progress > 0:
 
-                status = (
-                    "🚀 In Progress"
-                )
+                status = "🚀 In Progress"
 
             else:
 
-                status = (
-                    "⏳ Not Started"
-                )
-
-            # Favorite
+                status = "⏳ Not Started"
 
             if record.get(
                 "favorite",
                 False
             ):
 
-                favorite = (
-                    "⭐ Favorite"
-                )
+                favorite = "⭐ Favorite"
 
             else:
 
-                favorite = (
-                    "☆ Not Favorite"
-                )
+                favorite = "☆ Not Favorite"
 
             print(
                 f"\n🎯 {career}"
             )
 
             print(
-                f"Progress : "
-                f"{progress}%"
+                f"Progress : {progress}%"
             )
 
             print(
@@ -1910,8 +1693,7 @@ class CareerCopilot(Person, CareerFeatures):
 
             print(
                 f"Completed : "
-                f"{completed_count}/"
-                f"{total_steps}"
+                f"{completed_count}/{total_steps}"
             )
 
             print(
@@ -1920,19 +1702,16 @@ class CareerCopilot(Person, CareerFeatures):
             )
 
             print(
-                f"Status : "
-                f"{status}"
+                f"Status : {status}"
             )
 
             print(
-                f"Favorite : "
-                f"{favorite}"
+                f"Favorite : {favorite}"
             )
 
         print(
             "\n" + "=" * 45
         )
-
 
     # ========================================================
     # MARK FAVORITE
@@ -1942,21 +1721,19 @@ class CareerCopilot(Person, CareerFeatures):
 
         careers = self.load_career_data()
 
-        user_records = []
-
-        for record in careers:
-
+        user_records = [
+            record
+            for record in careers
             if record.get(
                 "user",
                 record.get(
                     "name",
                     ""
                 )
-            ).lower() == self.current_user.lower():
-
-                user_records.append(
-                    record
-                )
+            ).lower()
+            ==
+            self.current_user.lower()
+        ]
 
         if not user_records:
 
@@ -1992,9 +1769,7 @@ class CareerCopilot(Person, CareerFeatures):
 
             return
 
-        index = int(
-            choice
-        )
+        index = int(choice)
 
         if (
             index < 1
@@ -2012,9 +1787,7 @@ class CareerCopilot(Person, CareerFeatures):
             index - 1
         ]
 
-        selected[
-            "favorite"
-        ] = True
+        selected["favorite"] = True
 
         self.save_career_data(
             careers
@@ -2023,7 +1796,6 @@ class CareerCopilot(Person, CareerFeatures):
         print(
             "⭐ Career marked as Favorite!"
         )
-
 
     # ========================================================
     # VIEW FAVORITES
@@ -2089,7 +1861,6 @@ class CareerCopilot(Person, CareerFeatures):
                 "No favorite careers found."
             )
 
-
     # ========================================================
     # CAREER HISTORY
     # ========================================================
@@ -2144,10 +1915,9 @@ class CareerCopilot(Person, CareerFeatures):
                 completed_steps
             )
 
-            remaining_steps = (
-                total_steps
-                -
-                completed_count
+            remaining_steps = max(
+                0,
+                total_steps - completed_count
             )
 
             if total_steps > 0:
@@ -2157,7 +1927,9 @@ class CareerCopilot(Person, CareerFeatures):
                         completed_count
                         /
                         total_steps
-                    ) * 100
+                    )
+                    *
+                    100
                 )
 
             else:
@@ -2167,7 +1939,6 @@ class CareerCopilot(Person, CareerFeatures):
                     0
                 )
 
-            # Progress Bar
             bar_length = 20
 
             filled = int(
@@ -2175,7 +1946,9 @@ class CareerCopilot(Person, CareerFeatures):
                     progress
                     /
                     100
-                ) * bar_length
+                )
+                *
+                bar_length
             )
 
             progress_bar = (
@@ -2186,7 +1959,6 @@ class CareerCopilot(Person, CareerFeatures):
                 )
             )
 
-            # Status
             if total_steps > 0:
 
                 if progress == 100:
@@ -2244,9 +2016,7 @@ class CareerCopilot(Person, CareerFeatures):
                 f"{status}"
             )
 
-            if record.get(
-                "timestamp"
-            ):
+            if record.get("timestamp"):
 
                 print(
                     f"Created On : "
@@ -2273,7 +2043,6 @@ class CareerCopilot(Person, CareerFeatures):
             print(
                 "No career history found."
             )
-
 
     # ========================================================
     # EXPORT CSV
@@ -2354,7 +2123,6 @@ class CareerCopilot(Person, CareerFeatures):
                 f"❌ {e}"
             )
 
-
     # ========================================================
     # EXPORT TXT
     # ========================================================
@@ -2398,9 +2166,7 @@ class CareerCopilot(Person, CareerFeatures):
                         f"{record.get('favorite', False)}\n"
                     )
 
-                    if record.get(
-                        "timestamp"
-                    ):
+                    if record.get("timestamp"):
 
                         report.write(
                             f"Created On : "
@@ -2429,7 +2195,6 @@ class CareerCopilot(Person, CareerFeatures):
             print(
                 f"❌ {e}"
             )
-
 
     # ========================================================
     # BACKUP
@@ -2468,7 +2233,6 @@ class CareerCopilot(Person, CareerFeatures):
                 f"❌ {e}"
             )
 
-
     # ========================================================
     # RESTORE
     # ========================================================
@@ -2496,7 +2260,6 @@ class CareerCopilot(Person, CareerFeatures):
                 "✅ Data restored successfully!"
             )
 
-            # Clean restored duplicates
             self.clean_duplicate_records()
 
         except Exception as e:
@@ -2509,7 +2272,6 @@ class CareerCopilot(Person, CareerFeatures):
                 f"❌ {e}"
             )
 
-
     # ========================================================
     # UPDATE PROGRESS
     # ========================================================
@@ -2518,19 +2280,19 @@ class CareerCopilot(Person, CareerFeatures):
 
         careers = self.load_career_data()
 
-        user_records = []
-
-        for record in careers:
-
+        user_records = [
+            record
+            for record in careers
             if record.get(
                 "user",
                 record.get(
                     "name",
                     ""
                 )
-            ).lower() == self.current_user.lower():
-
-                user_records.append(record)
+            ).lower()
+            ==
+            self.current_user.lower()
+        ]
 
         if not user_records:
 
@@ -2616,7 +2378,9 @@ class CareerCopilot(Person, CareerFeatures):
                 len(completed_steps)
                 /
                 len(roadmap_steps)
-            ) * 100
+            )
+            *
+            100
         )
 
         selected[
@@ -2673,7 +2437,6 @@ class CareerCopilot(Person, CareerFeatures):
                 "\n⏳ Roadmap Not Started."
             )
 
-
     # ========================================================
     # COMPLETE ROADMAP STEP
     # ========================================================
@@ -2682,21 +2445,19 @@ class CareerCopilot(Person, CareerFeatures):
 
         careers = self.load_career_data()
 
-        user_records = []
-
-        for record in careers:
-
+        user_records = [
+            record
+            for record in careers
             if record.get(
                 "user",
                 record.get(
                     "name",
                     ""
                 )
-            ).lower() == self.current_user.lower():
-
-                user_records.append(
-                    record
-                )
+            ).lower()
+            ==
+            self.current_user.lower()
+        ]
 
         if not user_records:
 
@@ -2851,7 +2612,9 @@ class CareerCopilot(Person, CareerFeatures):
                 len(completed_steps)
                 /
                 len(steps)
-            ) * 100
+            )
+            *
+            100
         )
 
         selected_record[
@@ -2867,13 +2630,11 @@ class CareerCopilot(Person, CareerFeatures):
         )
 
         print(
-            f"Completed: "
-            f"{selected_step}"
+            f"Completed: {selected_step}"
         )
 
         print(
-            f"Progress: "
-            f"{progress}%"
+            f"Progress: {progress}%"
         )
 
         if progress == 100:
@@ -2896,20 +2657,22 @@ class CareerCopilot(Person, CareerFeatures):
 # MAIN PROGRAM
 # ============================================================
 
-copilot = CareerCopilot()
+if __name__ == "__main__":
 
-copilot.welcome()
+    copilot = CareerCopilot()
 
-if copilot.authentication_menu():
+    copilot.welcome()
 
-    copilot.welcome_user()
+    if copilot.authentication_menu():
 
-    while True:
+        copilot.welcome_user()
 
-        choice = copilot.show_menu()
+        while True:
 
-        if not copilot.process_choice(
-            choice
-        ):
+            choice = copilot.show_menu()
 
-            break
+            if not copilot.process_choice(
+                choice
+            ):
+
+                break

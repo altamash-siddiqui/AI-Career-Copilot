@@ -21,3 +21,8 @@ career_report.txt
 .env
 .venv/
 venv/
+
+uploads/
+*.pyc
+__pycache__/
+.env

@@ -39,8 +39,45 @@ buttons.forEach((button) => {
     ) {
         registerButton = button;
     }
+
 });
 
+// ============================================================
+// CHECK BACKEND CONNECTION
+// ============================================================
+
+async function checkBackendConnection() {
+
+    try {
+
+        const response = await fetch(
+            `${API_URL}/api/status`
+        );
+
+        const result = await response.json();
+
+        if (result.success) {
+
+            console.log(
+                "✅ Backend connected:",
+                result.message
+            );
+
+            return true;
+        }
+
+        return false;
+
+    } catch (error) {
+
+        console.error(
+            "❌ Backend connection failed:",
+            error
+        );
+
+        return false;
+    }
+}
 
 // ============================================================
 // LOGIN
@@ -56,6 +93,10 @@ async function loginUser() {
         ? passwordInput.value.trim()
         : "";
 
+    // --------------------------------------------------------
+    // VALIDATION
+    // --------------------------------------------------------
+
     if (!username || !password) {
 
         alert(
@@ -65,7 +106,9 @@ async function loginUser() {
         return;
     }
 
-    // Disable button during request
+    // --------------------------------------------------------
+    // DISABLE LOGIN BUTTON
+    // --------------------------------------------------------
 
     if (loginButton) {
 
@@ -76,6 +119,11 @@ async function loginUser() {
     }
 
     try {
+
+        console.log(
+            "🔐 Attempting login for:",
+            username
+        );
 
         const response = await fetch(
             `${API_URL}/api/login`,
@@ -96,31 +144,47 @@ async function loginUser() {
 
         const result = await response.json();
 
+        console.log(
+            "Login response:",
+            result
+        );
+
+        // ----------------------------------------------------
+        // SUCCESS
+        // ----------------------------------------------------
+
         if (result.success) {
 
-            // Save logged-in user
+            const loggedInUsername =
+                result.username || username;
 
+            // Save user session
             localStorage.setItem(
                 "careerCopilotUser",
-                result.username
+                loggedInUsername
+            );
+
+            // Optional login status
+            localStorage.setItem(
+                "careerCopilotLoggedIn",
+                "true"
             );
 
             alert(
-                `Welcome back, ${result.username}! 🚀`
+                `Welcome back, ${loggedInUsername}! 🚀`
             );
 
-            console.log(
-                "Login successful:",
-                result
-            );
+            // Redirect to dashboard
+            window.location.href =
+                "dashboard.html";
 
-            // For now keep the user on the
-            // same page. Dashboard connection
-            // will be added next.
+        }
 
-            window.location.href = "dashboard.html";
+        // ----------------------------------------------------
+        // FAILED LOGIN
+        // ----------------------------------------------------
 
-        } else {
+        else {
 
             alert(
                 result.message ||
@@ -131,12 +195,13 @@ async function loginUser() {
     } catch (error) {
 
         console.error(
-            "Login error:",
+            "❌ Login error:",
             error
         );
 
         alert(
-            "Unable to connect to AI Career Copilot server."
+            "Unable to connect to AI Career Copilot server.\n\n" +
+            "Make sure the Flask backend is running."
         );
 
     } finally {
@@ -151,7 +216,6 @@ async function loginUser() {
     }
 }
 
-
 // ============================================================
 // REGISTER
 // ============================================================
@@ -162,7 +226,8 @@ async function registerUser() {
         "Create your username:"
     );
 
-    if (!username) {
+    if (!username || !username.trim()) {
+
         return;
     }
 
@@ -170,11 +235,17 @@ async function registerUser() {
         "Create your password:"
     );
 
-    if (!password) {
+    if (!password || !password.trim()) {
+
         return;
     }
 
     try {
+
+        console.log(
+            "📝 Registering user:",
+            username.trim()
+        );
 
         const response = await fetch(
             `${API_URL}/api/register`,
@@ -187,32 +258,55 @@ async function registerUser() {
                 },
 
                 body: JSON.stringify({
-                    username: username.trim(),
-                    password: password.trim()
+
+                    username:
+                        username.trim(),
+
+                    password:
+                        password.trim()
+
                 })
             }
         );
 
-        const result = await response.json();
+        const result =
+            await response.json();
+
+        console.log(
+            "Registration response:",
+            result
+        );
+
+        // ----------------------------------------------------
+        // REGISTRATION SUCCESS
+        // ----------------------------------------------------
 
         if (result.success) {
 
             alert(
-                "Account created successfully! 🚀\n\n" +
+                "✅ Account created successfully!\n\n" +
                 "You can now login."
             );
 
             if (usernameInput) {
+
                 usernameInput.value =
                     username.trim();
             }
 
             if (passwordInput) {
+
                 passwordInput.value =
                     "";
             }
 
-        } else {
+        }
+
+        // ----------------------------------------------------
+        // REGISTRATION FAILED
+        // ----------------------------------------------------
+
+        else {
 
             alert(
                 result.message ||
@@ -223,16 +317,16 @@ async function registerUser() {
     } catch (error) {
 
         console.error(
-            "Registration error:",
+            "❌ Registration error:",
             error
         );
 
         alert(
-            "Unable to connect to AI Career Copilot server."
+            "Unable to connect to AI Career Copilot server.\n\n" +
+            "Make sure the Flask backend is running."
         );
     }
 }
-
 
 // ============================================================
 // BUTTON EVENTS
@@ -244,6 +338,7 @@ if (loginButton) {
         "click",
         loginUser
     );
+
 }
 
 if (registerButton) {
@@ -252,8 +347,8 @@ if (registerButton) {
         "click",
         registerUser
     );
-}
 
+}
 
 // ============================================================
 // ENTER KEY LOGIN
@@ -265,53 +360,101 @@ if (passwordInput) {
         "keydown",
         function (event) {
 
-            if (
-                event.key === "Enter"
-            ) {
+            if (event.key === "Enter") {
+
+                event.preventDefault();
 
                 loginUser();
             }
+
         }
     );
+
 }
 
+// ============================================================
+// PASSWORD SHOW / HIDE
+// ============================================================
+
+const passwordToggle =
+    document.getElementById(
+        "passwordToggle"
+    );
+
+const passwordField =
+    document.getElementById(
+        "password"
+    );
+
+if (
+    passwordToggle &&
+    passwordField
+) {
+
+    passwordToggle.addEventListener(
+        "click",
+        function () {
+
+            if (
+                passwordField.type ===
+                "password"
+            ) {
+
+                passwordField.type =
+                    "text";
+
+                passwordToggle.innerText =
+                    "◉";
+
+            }
+
+            else {
+
+                passwordField.type =
+                    "password";
+
+                passwordToggle.innerText =
+                    "◉";
+            }
+
+        }
+    );
+
+}
 
 // ============================================================
 // SYSTEM READY
 // ============================================================
 
 console.log(
-    "🤖 AI Career Copilot frontend connected."
+    "🤖 AI Career Copilot frontend loaded."
 );
 
 console.log(
-    "🔗 Backend:",
+    "🔗 Backend API:",
     API_URL
 );
 
 // ============================================================
-// PASSWORD SHOW / HIDE
+// CHECK BACKEND WHEN PAGE LOADS
 // ============================================================
 
-const passwordToggle = document.getElementById("passwordToggle");
-const passwordField = document.getElementById("password");
+checkBackendConnection()
+    .then((connected) => {
 
-if (passwordToggle && passwordField) {
+        if (connected) {
 
-    passwordToggle.addEventListener("click", function () {
-
-        if (passwordField.type === "password") {
-
-            passwordField.type = "text";
-            passwordToggle.innerText = "◉";
-
-        } else {
-
-            passwordField.type = "password";
-            passwordToggle.innerText = "◉";
+            console.log(
+                "🟢 AI Career Copilot system ONLINE."
+            );
 
         }
 
-    });
+        else {
 
-}
+            console.warn(
+                "🔴 AI Career Copilot backend OFFLINE."
+            );
+        }
+
+    });

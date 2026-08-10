@@ -2,6 +2,7 @@
 <html lang="en">
 
 <head>
+
     <meta charset="UTF-8">
 
     <meta
@@ -9,296 +10,2612 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>AI Career Copilot - Dashboard</title>
+    <title>AI Career Copilot — Dashboard</title>
 
     <link rel="stylesheet" href="style.css">
+
+    <style>
+
+        /* =========================================================
+           AI CAREER COPILOT — DASHBOARD 3.0
+        ========================================================= */
+
+        .dashboard-page {
+            min-height: 100vh;
+            position: relative;
+            z-index: 5;
+        }
+
+        .dashboard {
+            width: min(1250px, 92%);
+            margin: auto;
+            padding: 30px 0 45px;
+        }
+
+
+        /* =========================================================
+           HEADER
+        ========================================================= */
+
+        .dashboard-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: 25px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .dashboard-brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .dashboard-brand-icon {
+            width: 48px;
+            height: 48px;
+
+            display: grid;
+            place-items: center;
+
+            border: 1px solid rgba(85,231,255,0.55);
+            border-radius: 14px;
+
+            color: #55e7ff;
+            font-size: 23px;
+
+            background:
+                radial-gradient(
+                    circle,
+                    rgba(85,231,255,0.16),
+                    transparent 70%
+                );
+
+            box-shadow:
+                0 0 30px rgba(85,231,255,0.16);
+
+            animation:
+                dashboardOrb 4s ease-in-out infinite;
+        }
+
+        @keyframes dashboardOrb {
+
+            50% {
+                transform:
+                    translateY(-3px)
+                    rotate(4deg);
+            }
+
+        }
+
+        .dashboard-brand-name {
+            font-family: "Orbitron", sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 2px;
+        }
+
+        .dashboard-brand-subtitle {
+            margin-top: 5px;
+
+            color: #55e7ff;
+
+            font-family: "Orbitron", sans-serif;
+
+            font-size: 8px;
+            letter-spacing: 3px;
+        }
+
+
+        /* =========================================================
+           SYSTEM STATUS
+        ========================================================= */
+
+        .dashboard-system {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+
+            color: #9da6c7;
+
+            font-family: "Orbitron", sans-serif;
+
+            font-size: 9px;
+            letter-spacing: 1.5px;
+        }
+
+        .dashboard-status-dot {
+            width: 7px;
+            height: 7px;
+
+            border-radius: 50%;
+
+            background: #5dffae;
+
+            box-shadow:
+                0 0 15px #5dffae;
+
+            animation:
+                dashboardStatusPulse 1.7s infinite;
+        }
+
+        @keyframes dashboardStatusPulse {
+
+            50% {
+                opacity: 0.35;
+                transform: scale(0.7);
+            }
+
+        }
+
+
+        /* =========================================================
+           HERO
+        ========================================================= */
+
+        .dashboard-hero {
+            padding: 65px 0 35px;
+        }
+
+        .dashboard-eyebrow {
+            color: #55e7ff;
+
+            font-family: "Orbitron", sans-serif;
+
+            font-size: 9px;
+            letter-spacing: 3px;
+
+            margin-bottom: 18px;
+        }
+
+        .dashboard-hero h1 {
+            margin: 0;
+
+            max-width: 850px;
+
+            font-size:
+                clamp(40px, 6vw, 72px);
+
+            line-height: 1;
+            letter-spacing: -3px;
+
+            font-weight: 800;
+
+            background:
+                linear-gradient(
+                    100deg,
+                    #ffffff,
+                    #55e7ff 48%,
+                    #a98cff
+                );
+
+            -webkit-background-clip: text;
+            background-clip: text;
+
+            color: transparent;
+        }
+
+        .dashboard-description {
+            max-width: 680px;
+
+            margin-top: 20px;
+
+            color: #9199b8;
+
+            font-size: 15px;
+            line-height: 1.8;
+        }
+
+
+        /* =========================================================
+           COMMAND GRID
+        ========================================================= */
+
+        .dashboard-grid {
+            display: grid;
+
+            grid-template-columns:
+                1.35fr 0.65fr;
+
+            gap: 22px;
+
+            margin-top: 25px;
+        }
+
+
+        /* =========================================================
+           PROGRESS PANEL
+        ========================================================= */
+
+        .progress-panel {
+            position: relative;
+
+            padding: 30px;
+
+            min-height: 300px;
+
+            overflow: hidden;
+
+            border:
+                1px solid rgba(85,231,255,0.18);
+
+            border-radius: 24px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(25,28,65,0.88),
+                    rgba(7,10,28,0.94)
+                );
+
+            box-shadow:
+                0 25px 80px rgba(0,0,0,0.28),
+                inset 0 1px 0 rgba(255,255,255,0.05);
+        }
+
+        .progress-panel::before {
+            content: "";
+
+            position: absolute;
+
+            width: 250px;
+            height: 250px;
+
+            right: -100px;
+            top: -120px;
+
+            border-radius: 50%;
+
+            background: #55e7ff;
+
+            filter: blur(100px);
+
+            opacity: 0.08;
+
+            pointer-events: none;
+        }
+
+        .panel-label {
+            color: #68718f;
+
+            font-family: "Orbitron", sans-serif;
+
+            font-size: 8px;
+            letter-spacing: 2px;
+
+            margin-bottom: 25px;
+        }
+
+        .progress-layout {
+            display: flex;
+            align-items: center;
+            gap: 38px;
+        }
+
+
+        /* =========================================================
+           PROGRESS CIRCLE
+        ========================================================= */
+
+        .dashboard-progress-circle {
+            flex-shrink: 0;
+
+            width: 175px;
+            height: 175px;
+
+            border-radius: 50%;
+
+            display: grid;
+            place-items: center;
+
+            position: relative;
+
+            background:
+                conic-gradient(
+                    #55e7ff 0deg,
+                    #55e7ff var(--progress-angle),
+                    rgba(255,255,255,0.06)
+                    var(--progress-angle),
+                    rgba(255,255,255,0.06)
+                    360deg
+                );
+
+            box-shadow:
+                0 0 35px
+                rgba(85,231,255,0.18);
+
+            transition:
+                background 0.8s ease;
+        }
+
+        .dashboard-progress-circle::before {
+            content: "";
+
+            position: absolute;
+
+            width: 135px;
+            height: 135px;
+
+            border-radius: 50%;
+
+            background: #080c1d;
+
+            border:
+                1px solid
+                rgba(85,231,255,0.08);
+        }
+
+        .progress-circle-content {
+            position: relative;
+
+            text-align: center;
+
+            z-index: 2;
+        }
+
+        .dashboard-percentage {
+            font-size: 35px;
+            font-weight: 800;
+
+            color: #55e7ff;
+
+            text-shadow:
+                0 0 20px
+                rgba(85,231,255,0.35);
+        }
+
+        .dashboard-complete-label {
+            margin-top: 4px;
+
+            color: #707894;
+
+            font-family: "Orbitron", sans-serif;
+
+            font-size: 7px;
+            letter-spacing: 2px;
+        }
+
+
+        /* =========================================================
+           CAREER INFO
+        ========================================================= */
+
+        .career-progress-info {
+            flex: 1;
+        }
+
+        .active-career-label {
+            color: #6f7898;
+
+            font-family: "Orbitron", sans-serif;
+
+            font-size: 8px;
+            letter-spacing: 2px;
+
+            margin-bottom: 8px;
+        }
+
+        .active-career-name {
+            font-size: 30px;
+            font-weight: 800;
+
+            line-height: 1.15;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    #ffffff,
+                    #55e7ff
+                );
+
+            -webkit-background-clip: text;
+            background-clip: text;
+
+            color: transparent;
+        }
+
+        .career-status {
+            margin-top: 10px;
+
+            color: #9199b8;
+
+            font-size: 13px;
+
+            line-height: 1.6;
+        }
+
+
+        /* =========================================================
+           PROGRESS BAR
+        ========================================================= */
+
+        .dashboard-progress-bar {
+            width: 100%;
+            height: 10px;
+
+            margin-top: 25px;
+
+            overflow: hidden;
+
+            border-radius: 20px;
+
+            background:
+                rgba(255,255,255,0.06);
+
+            border:
+                1px solid
+                rgba(255,255,255,0.07);
+        }
+
+        .dashboard-progress-fill {
+            width: 0%;
+            height: 100%;
+
+            border-radius: 20px;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    #35d9ff,
+                    #8c6cff
+                );
+
+            box-shadow:
+                0 0 20px
+                rgba(85,231,255,0.35);
+
+            transition:
+                width 0.8s ease;
+        }
+
+
+        /* =========================================================
+           STATS
+        ========================================================= */
+
+        .progress-stat-grid {
+            display: grid;
+
+            grid-template-columns:
+                repeat(3,1fr);
+
+            gap: 10px;
+
+            margin-top: 22px;
+        }
+
+        .progress-stat-box {
+            padding: 14px;
+
+            border:
+                1px solid
+                rgba(255,255,255,0.06);
+
+            border-radius: 12px;
+
+            background:
+                rgba(255,255,255,0.025);
+        }
+
+        .progress-stat-number {
+            color: #ffffff;
+
+            font-size: 21px;
+            font-weight: 800;
+        }
+
+        .progress-stat-label {
+            margin-top: 5px;
+
+            color: #68718f;
+
+            font-size: 9px;
+            letter-spacing: 1px;
+        }
+
+
+        /* =========================================================
+           SYSTEM PANEL
+        ========================================================= */
+
+        .system-panel {
+            padding: 30px;
+
+            border:
+                1px solid
+                rgba(155,108,255,0.18);
+
+            border-radius: 24px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(35,22,70,0.85),
+                    rgba(8,10,28,0.94)
+                );
+        }
+
+        .system-panel-title {
+            color: #707894;
+
+            font-family: "Orbitron", sans-serif;
+
+            font-size: 8px;
+            letter-spacing: 2px;
+
+            margin-bottom: 25px;
+        }
+
+        .system-item {
+            display: flex;
+
+            align-items: center;
+
+            gap: 12px;
+
+            padding: 14px 0;
+
+            border-bottom:
+                1px solid
+                rgba(255,255,255,0.06);
+
+            color: #b9c0d8;
+
+            font-size: 12px;
+        }
+
+        .system-item:last-child {
+            border-bottom: none;
+        }
+
+        .system-item-icon {
+            width: 34px;
+            height: 34px;
+
+            display: grid;
+            place-items: center;
+
+            border-radius: 10px;
+
+            background:
+                rgba(85,231,255,0.05);
+
+            border:
+                1px solid
+                rgba(85,231,255,0.12);
+        }
+
+        .system-item strong {
+            display: block;
+
+            color: #ffffff;
+
+            font-size: 12px;
+
+            margin-bottom: 3px;
+        }
+
+        .system-item small {
+            color: #68718f;
+
+            font-size: 9px;
+        }
+
+
+        /* =========================================================
+           SECTION TITLE
+        ========================================================= */
+
+        .dashboard-section-title {
+            margin:
+                45px 0 18px;
+
+            color: #55e7ff;
+
+            font-family: "Orbitron", sans-serif;
+
+            font-size: 9px;
+            letter-spacing: 3px;
+        }
+
+
+        /* =========================================================
+           FEATURE GRID
+        ========================================================= */
+
+        .feature-grid {
+            display: grid;
+
+            grid-template-columns:
+                repeat(4,1fr);
+
+            gap: 15px;
+        }
+
+        .dashboard-card {
+            min-height: 225px;
+
+            padding: 24px;
+
+            border:
+                1px solid
+                rgba(125,140,255,0.14);
+
+            border-radius: 19px;
+
+            background:
+                rgba(12,15,34,0.78);
+
+            transition:
+                transform 0.3s ease,
+                border-color 0.3s ease,
+                box-shadow 0.3s ease;
+        }
+
+        .dashboard-card:hover {
+            transform:
+                translateY(-6px);
+
+            border-color:
+                rgba(85,231,255,0.4);
+
+            box-shadow:
+                0 20px 60px
+                rgba(0,0,0,0.3),
+
+                0 0 30px
+                rgba(85,231,255,0.06);
+        }
+
+        .dashboard-card-icon {
+            width: 45px;
+            height: 45px;
+
+            display: grid;
+            place-items: center;
+
+            border-radius: 13px;
+
+            margin-bottom: 20px;
+
+            background:
+                rgba(85,231,255,0.05);
+
+            border:
+                1px solid
+                rgba(85,231,255,0.15);
+
+            font-size: 20px;
+        }
+
+        .dashboard-card h2 {
+            margin:
+                0 0 9px;
+
+            font-size: 17px;
+        }
+
+        .dashboard-card p {
+            min-height: 60px;
+
+            margin: 0;
+
+            color: #818aa9;
+
+            font-size: 11px;
+
+            line-height: 1.65;
+        }
+
+        .dashboard-card button {
+            width: 100%;
+
+            height: 38px;
+
+            margin-top: 15px;
+
+            border:
+                1px solid
+                rgba(85,231,255,0.25);
+
+            border-radius: 9px;
+
+            background:
+                rgba(85,231,255,0.04);
+
+            color: #55e7ff;
+
+            font-family: "Orbitron", sans-serif;
+
+            font-size: 7px;
+
+            letter-spacing: 1px;
+
+            cursor: pointer;
+
+            transition: 0.25s ease;
+        }
+
+        .dashboard-card button:hover {
+            background:
+                rgba(85,231,255,0.1);
+
+            border-color:
+                rgba(85,231,255,0.5);
+
+            box-shadow:
+                0 0 20px
+                rgba(85,231,255,0.08);
+        }
+
+
+        /* =========================================================
+           QUICK ACCESS
+        ========================================================= */
+
+        .quick-section {
+            margin-top: 35px;
+
+            padding: 24px;
+
+            border:
+                1px solid
+                rgba(255,255,255,0.07);
+
+            border-radius: 18px;
+
+            background:
+                rgba(8,10,25,0.65);
+        }
+
+        .quick-title {
+            color: #6e7896;
+
+            font-family: "Orbitron", sans-serif;
+
+            font-size: 8px;
+            letter-spacing: 2px;
+
+            margin-bottom: 15px;
+        }
+
+        .quick-grid {
+            display: grid;
+
+            grid-template-columns:
+                repeat(4,1fr);
+
+            gap: 10px;
+        }
+
+        .quick-item {
+            padding: 16px;
+
+            border:
+                1px solid
+                rgba(255,255,255,0.05);
+
+            border-radius: 11px;
+
+            color: #b7bed6;
+
+            font-size: 11px;
+
+            cursor: pointer;
+
+            transition: 0.25s ease;
+        }
+
+        .quick-item span {
+            color: #55e7ff;
+
+            font-family: "Orbitron", sans-serif;
+
+            margin-right: 8px;
+        }
+
+        .quick-item:hover {
+            transform:
+                translateY(-2px);
+
+            border-color:
+                rgba(85,231,255,0.3);
+
+            background:
+                rgba(85,231,255,0.04);
+        }
+
+
+        /* =========================================================
+           LOGOUT
+        ========================================================= */
+
+        .dashboard-actions {
+            display: flex;
+
+            justify-content: flex-end;
+
+            margin-top: 30px;
+        }
+
+        .logout-button {
+            padding:
+                11px 22px;
+
+            border:
+                1px solid
+                rgba(255,80,140,0.35);
+
+            border-radius: 10px;
+
+            background:
+                transparent;
+
+            color: #ff7cae;
+
+            font-family: "Orbitron", sans-serif;
+
+            font-size: 8px;
+
+            letter-spacing: 1.5px;
+
+            cursor: pointer;
+
+            transition: 0.25s ease;
+        }
+
+        .logout-button:hover {
+            background:
+                rgba(255,80,140,0.07);
+
+            border-color:
+                rgba(255,80,140,0.6);
+        }
+
+
+        /* =========================================================
+           FOOTER
+        ========================================================= */
+
+        .dashboard-footer {
+            display: flex;
+
+            justify-content: space-between;
+
+            margin-top: 45px;
+
+            padding-top: 20px;
+
+            border-top:
+                1px solid
+                rgba(255,255,255,0.07);
+
+            color: #505873;
+
+            font-family: "Orbitron", sans-serif;
+
+            font-size: 7px;
+
+            letter-spacing: 1.5px;
+        }
+
+
+        /* =========================================================
+           CAREER MODAL
+        ========================================================= */
+
+        .career-modal {
+            position: fixed;
+
+            inset: 0;
+
+            display: none;
+
+            align-items: center;
+            justify-content: center;
+
+            padding: 20px;
+
+            background:
+                rgba(2,4,12,0.82);
+
+            backdrop-filter:
+                blur(12px);
+
+            z-index: 9999;
+        }
+
+        .career-modal.show {
+            display: flex;
+        }
+
+        .career-modal-box {
+            width: min(620px,100%);
+
+            padding: 30px;
+
+            border:
+                1px solid
+                rgba(85,231,255,0.25);
+
+            border-radius: 22px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(18,22,52,0.98),
+                    rgba(5,8,23,0.98)
+                );
+
+            box-shadow:
+                0 30px 100px
+                rgba(0,0,0,0.65),
+
+                0 0 50px
+                rgba(85,231,255,0.08);
+
+            animation:
+                modalOpen 0.25s ease;
+        }
+
+        @keyframes modalOpen {
+
+            from {
+                opacity: 0;
+                transform:
+                    translateY(15px)
+                    scale(0.97);
+            }
+
+            to {
+                opacity: 1;
+                transform:
+                    translateY(0)
+                    scale(1);
+            }
+
+        }
+
+        .career-modal-top {
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            margin-bottom: 25px;
+        }
+
+        .career-modal-title {
+            color: #55e7ff;
+
+            font-family: "Orbitron", sans-serif;
+
+            font-size: 10px;
+
+            letter-spacing: 2px;
+        }
+
+        .career-modal-close {
+            width: 34px;
+            height: 34px;
+
+            border:
+                1px solid
+                rgba(255,255,255,0.08);
+
+            border-radius: 9px;
+
+            background:
+                rgba(255,255,255,0.03);
+
+            color: #8d96b4;
+
+            cursor: pointer;
+        }
+
+        .career-modal h2 {
+            margin: 0;
+
+            font-size: 27px;
+        }
+
+        .career-modal-description {
+            margin-top: 8px;
+
+            color: #8089a8;
+
+            font-size: 12px;
+        }
+
+        .career-options {
+            display: grid;
+
+            grid-template-columns:
+                repeat(2,1fr);
+
+            gap: 12px;
+
+            margin-top: 25px;
+        }
+
+        .career-option {
+            padding: 18px;
+
+            text-align: left;
+
+            border:
+                1px solid
+                rgba(125,140,255,0.14);
+
+            border-radius: 14px;
+
+            background:
+                rgba(255,255,255,0.025);
+
+            color: white;
+
+            cursor: pointer;
+
+            transition: 0.25s ease;
+        }
+
+        .career-option:hover {
+            transform:
+                translateY(-3px);
+
+            border-color:
+                rgba(85,231,255,0.45);
+
+            background:
+                rgba(85,231,255,0.06);
+
+            box-shadow:
+                0 10px 30px
+                rgba(85,231,255,0.06);
+        }
+
+        .career-option-icon {
+            font-size: 22px;
+
+            margin-bottom: 9px;
+        }
+
+        .career-option strong {
+            display: block;
+
+            font-size: 14px;
+
+            margin-bottom: 5px;
+        }
+
+        .career-option small {
+            color: #737c9a;
+
+            font-size: 9px;
+
+            line-height: 1.5;
+        }
+
+
+        /* =========================================================
+           SYSTEM NOTIFICATION
+        ========================================================= */
+
+        .dashboard-notification {
+            position: fixed;
+
+            right: 25px;
+            bottom: 25px;
+
+            width: min(360px, calc(100% - 30px));
+
+            padding: 15px 18px;
+
+            border:
+                1px solid
+                rgba(85,231,255,0.3);
+
+            border-radius: 13px;
+
+            background:
+                rgba(8,13,30,0.95);
+
+            backdrop-filter:
+                blur(18px);
+
+            color: #dce8ff;
+
+            font-size: 11px;
+
+            line-height: 1.5;
+
+            box-shadow:
+                0 20px 60px
+                rgba(0,0,0,0.45),
+
+                0 0 30px
+                rgba(85,231,255,0.08);
+
+            opacity: 0;
+
+            transform:
+                translateY(15px);
+
+            pointer-events: none;
+
+            transition:
+                0.3s ease;
+
+            z-index: 10000;
+        }
+
+        .dashboard-notification.show {
+            opacity: 1;
+
+            transform:
+                translateY(0);
+        }
+
+
+        /* =========================================================
+           RESPONSIVE
+        ========================================================= */
+
+        @media (max-width:1050px) {
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .feature-grid {
+                grid-template-columns:
+                    repeat(2,1fr);
+            }
+
+        }
+
+
+        @media (max-width:700px) {
+
+            .dashboard {
+                width: 90%;
+            }
+
+            .dashboard-system {
+                display: none;
+            }
+
+            .dashboard-hero {
+                padding-top: 45px;
+            }
+
+            .dashboard-hero h1 {
+                font-size: 45px;
+                letter-spacing: -2px;
+            }
+
+            .progress-layout {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .progress-stat-grid {
+                width: 100%;
+            }
+
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .quick-grid {
+                grid-template-columns:
+                    1fr 1fr;
+            }
+
+            .dashboard-footer {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+        }
+
+
+        @media (max-width:450px) {
+
+            .dashboard-progress-circle {
+                width: 145px;
+                height: 145px;
+            }
+
+            .dashboard-progress-circle::before {
+                width: 112px;
+                height: 112px;
+            }
+
+            .active-career-name {
+                font-size: 24px;
+            }
+
+            .progress-stat-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .quick-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .career-options {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+    </style>
+
 </head>
+
 
 <body>
 
-    <!-- Background -->
+
+    <!-- =========================================================
+         BACKGROUND
+    ========================================================= -->
+
     <div class="background-grid"></div>
 
     <div class="ambient ambient-one"></div>
     <div class="ambient ambient-two"></div>
     <div class="ambient ambient-three"></div>
 
-    <!-- Dashboard -->
-    <main class="dashboard">
+    <div id="particles"></div>
 
-        <!-- Top Navigation -->
-        <header class="dashboard-header">
 
-            <div class="brand">
-                <div class="brand-icon">✦</div>
+    <!-- =========================================================
+         DASHBOARD
+    ========================================================= -->
 
-                <div>
-                    <div class="brand-title">
-                        AI CAREER
+    <main class="dashboard-page">
+
+        <div class="dashboard">
+
+
+            <!-- =================================================
+                 HEADER
+            ================================================= -->
+
+            <header class="dashboard-header">
+
+                <div class="dashboard-brand">
+
+                    <div class="dashboard-brand-icon">
+                        ✦
                     </div>
 
-                    <div class="brand-subtitle">
-                        COPILOT
+                    <div>
+
+                        <div class="dashboard-brand-name">
+                            AI CAREER
+                        </div>
+
+                        <div class="dashboard-brand-subtitle">
+                            COPILOT
+                        </div>
+
                     </div>
+
                 </div>
-            </div>
-
-            <div class="system-status">
-                <span class="status-dot"></span>
-                SYSTEM ONLINE
-            </div>
-
-        </header>
 
 
-        <!-- Welcome Section -->
-        <section class="welcome-section">
+                <div class="dashboard-system">
 
-            <div>
+                    <span
+                        class="dashboard-status-dot"
+                    ></span>
 
-                <p class="eyebrow">
+                    SYSTEM ONLINE
+
+                </div>
+
+            </header>
+
+
+            <!-- =================================================
+                 HERO
+            ================================================= -->
+
+            <section class="dashboard-hero">
+
+                <div class="dashboard-eyebrow">
                     CAREER INTELLIGENCE SYSTEM
-                </p>
+                </div>
 
                 <h1>
+
                     Welcome,
+
                     <span id="username">
                         Career Explorer
                     </span>.
+
                 </h1>
 
-                <p class="welcome-text">
+                <p class="dashboard-description">
+
                     Your AI-powered career command center.
-                    Plan, analyze and accelerate your
-                    professional journey.
+                    Track your roadmap, monitor your progress,
+                    and build the skills required for your future.
+
                 </p>
 
-            </div>
-
-        </section>
+            </section>
 
 
-        <!-- Feature Cards -->
-        <section class="feature-grid">
+            <!-- =================================================
+                 COMMAND GRID
+            ================================================= -->
 
-            <div class="career-card">
+            <section class="dashboard-grid">
 
-                <div class="card-icon">
-                    🧭
+
+                <!-- PROGRESS PANEL -->
+
+                <div
+                    class="progress-panel"
+                    id="progressSection"
+                >
+
+                    <div class="panel-label">
+                        CAREER PROGRESS
+                    </div>
+
+
+                    <div class="progress-layout">
+
+
+                        <!-- PROGRESS CIRCLE -->
+
+                        <div
+                            class="dashboard-progress-circle"
+                            id="progressCircle"
+                            style="--progress-angle:0deg;"
+                        >
+
+                            <div
+                                class="progress-circle-content"
+                            >
+
+                                <div
+                                    class="dashboard-percentage"
+                                    id="progressPercentage"
+                                >
+                                    0%
+                                </div>
+
+                                <div
+                                    class="dashboard-complete-label"
+                                >
+                                    COMPLETE
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- CAREER INFO -->
+
+                        <div
+                            class="career-progress-info"
+                        >
+
+                            <div
+                                class="active-career-label"
+                            >
+                                ACTIVE CAREER PATH
+                            </div>
+
+                            <div
+                                class="active-career-name"
+                                id="careerName"
+                            >
+                                No Career Selected
+                            </div>
+
+                            <div
+                                class="career-status"
+                                id="progressStatus"
+                            >
+                                Select a career goal to begin
+                                your personalized roadmap.
+                            </div>
+
+
+                            <div
+                                class="dashboard-progress-bar"
+                            >
+
+                                <div
+                                    class="dashboard-progress-fill"
+                                    id="progressBar"
+                                ></div>
+
+                            </div>
+
+
+                            <div
+                                class="progress-stat-grid"
+                            >
+
+                                <div
+                                    class="progress-stat-box"
+                                >
+
+                                    <div
+                                        class="progress-stat-number"
+                                        id="completedSteps"
+                                    >
+                                        0
+                                    </div>
+
+                                    <div
+                                        class="progress-stat-label"
+                                    >
+                                        COMPLETED
+                                    </div>
+
+                                </div>
+
+
+                                <div
+                                    class="progress-stat-box"
+                                >
+
+                                    <div
+                                        class="progress-stat-number"
+                                        id="totalSteps"
+                                    >
+                                        0
+                                    </div>
+
+                                    <div
+                                        class="progress-stat-label"
+                                    >
+                                        TOTAL STEPS
+                                    </div>
+
+                                </div>
+
+
+                                <div
+                                    class="progress-stat-box"
+                                >
+
+                                    <div
+                                        class="progress-stat-number"
+                                        id="remainingSteps"
+                                    >
+                                        0
+                                    </div>
+
+                                    <div
+                                        class="progress-stat-label"
+                                    >
+                                        REMAINING
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
                 </div>
 
-                <h2>
-                    Career Roadmap
-                </h2>
 
-                <p>
-                    Build a personalized roadmap
-                    for your career goals.
-                </p>
+                <!-- SYSTEM PANEL -->
 
-                <button onclick="window.location.href='roadmap.html'">
-                    OPEN ROADMAP →
-                </button>
+                <div class="system-panel">
 
+                    <div class="system-panel-title">
+                        COPILOT SYSTEM
+                    </div>
+
+
+                    <div class="system-item">
+
+                        <div class="system-item-icon">
+                            🤖
+                        </div>
+
+                        <div>
+
+                            <strong>
+                                AI Engine
+                            </strong>
+
+                            <small>
+                                Ready for requests
+                            </small>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="system-item">
+
+                        <div class="system-item-icon">
+                            🧭
+                        </div>
+
+                        <div>
+
+                            <strong>
+                                Roadmap Engine
+                            </strong>
+
+                            <small>
+                                Career planning active
+                            </small>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="system-item">
+
+                        <div class="system-item-icon">
+                            📊
+                        </div>
+
+                        <div>
+
+                            <strong>
+                                Progress Tracker
+                            </strong>
+
+                            <small>
+                                Local progress synced
+                            </small>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="system-item">
+
+                        <div class="system-item-icon">
+                            🔐
+                        </div>
+
+                        <div>
+
+                            <strong>
+                                User Session
+                            </strong>
+
+                            <small id="sessionUser">
+                                Active
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 CAREER COMMAND CENTER
+            ================================================= -->
+
+            <div class="dashboard-section-title">
+                CAREER COMMAND CENTER
             </div>
 
 
-            <div class="career-card">
+            <section class="feature-grid">
 
-                <div class="card-icon">
-                    📄
+
+                <!-- ROADMAP -->
+
+                <div class="dashboard-card">
+
+                    <div class="dashboard-card-icon">
+                        🧭
+                    </div>
+
+                    <h2>
+                        Career Roadmap
+                    </h2>
+
+                    <p>
+                        Build and follow your personalized
+                        step-by-step career path.
+                    </p>
+
+                    <button
+                        onclick="openRoadmap()"
+                    >
+                        OPEN ROADMAP →
+                    </button>
+
                 </div>
 
-                <h2>
-                    Resume Intelligence
-                </h2>
 
-                <p>
-                    Analyze your resume and discover
-                    opportunities to improve it.
-                </p>
+                <!-- RESUME -->
+
+                <div class="dashboard-card">
+
+                    <div class="dashboard-card-icon">
+                        📄
+                    </div>
+
+                    <h2>
+                        Resume Intelligence
+                    </h2>
+
+                    <p>
+                        Analyze your resume and identify
+                        improvements for your target career.
+                    </p>
+
+                    <button
+                        onclick="showComingSoon('Resume Intelligence')"
+                    >
+                        ANALYZE RESUME →
+                    </button>
+
+                </div>
+
+
+                <!-- AI GUIDANCE -->
+
+                <div class="dashboard-card">
+
+                    <div class="dashboard-card-icon">
+                        🤖
+                    </div>
+
+                    <h2>
+                        AI Guidance
+                    </h2>
+
+                    <p>
+                        Ask the Copilot questions about
+                        skills, careers and next steps.
+                    </p>
+
+                    <button
+                        onclick="showComingSoon('AI Guidance')"
+                    >
+                        ASK COPILOT →
+                    </button>
+
+                </div>
+
+
+                <!-- PROGRESS -->
+
+                <div class="dashboard-card">
+
+                    <div class="dashboard-card-icon">
+                        📊
+                    </div>
+
+                    <h2>
+                        Career Progress
+                    </h2>
+
+                    <p>
+                        Monitor your completed roadmap
+                        steps and remaining career goals.
+                    </p>
+
+                    <button
+                        onclick="scrollToProgress()"
+                    >
+                        VIEW PROGRESS →
+                    </button>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 QUICK ACCESS
+            ================================================= -->
+
+            <section class="quick-section">
+
+                <div class="quick-title">
+                    QUICK ACCESS
+                </div>
+
+
+                <div class="quick-grid">
+
+
+                    <div
+                        class="quick-item"
+                        onclick="openRoadmap()"
+                    >
+
+                        <span>01</span>
+
+                        Set Career Goal
+
+                    </div>
+
+
+                    <div
+                        class="quick-item"
+                        onclick="showComingSoon('Skill Analysis')"
+                    >
+
+                        <span>02</span>
+
+                        Analyze Skills
+
+                    </div>
+
+
+                    <div
+                        class="quick-item"
+                        onclick="openRoadmap()"
+                    >
+
+                        <span>03</span>
+
+                        Create Roadmap
+
+                    </div>
+
+
+                    <div
+                        class="quick-item"
+                        onclick="showComingSoon('AI Copilot')"
+                    >
+
+                        <span>04</span>
+
+                        Ask AI Copilot
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 LOGOUT
+            ================================================= -->
+
+            <div class="dashboard-actions">
 
                 <button
-                    onclick="showComingSoon('Resume Intelligence')"
+                    class="logout-button"
+                    onclick="logoutUser()"
                 >
-                    ANALYZE RESUME →
+                    LOGOUT
                 </button>
 
             </div>
 
 
-            <div class="career-card">
+            <!-- =================================================
+                 FOOTER
+            ================================================= -->
 
-                <div class="card-icon">
-                    🤖
-                </div>
+            <footer class="dashboard-footer">
 
-                <h2>
-                    AI Guidance
-                </h2>
+                <span>
+                    AI CAREER COPILOT
+                </span>
 
-                <p>
-                    Get intelligent guidance for
-                    your next career decision.
-                </p>
+                <span>
+                    CAREER OS v3.0
+                </span>
 
-                <button
-                    onclick="showComingSoon('AI Guidance')"
-                >
-                    ASK COPILOT →
-                </button>
+                <span>
+                    AI ENGINE READY
+                </span>
 
-            </div>
-
-
-            <div class="career-card">
-
-                <div class="card-icon">
-                    📊
-                </div>
-
-                <h2>
-                    Career Progress
-                </h2>
-
-                <p>
-                    Track your skills, goals and
-                    professional progress.
-                </p>
-
-                <button
-                    onclick="showComingSoon('Career Progress')"
-                >
-                    VIEW PROGRESS →
-                </button>
-
-            </div>
-
-        </section>
-
-
-        <!-- Quick Actions -->
-        <section class="quick-section">
-
-            <div class="section-title">
-                QUICK ACCESS
-            </div>
-
-            <div class="quick-grid">
-
-                <div class="quick-item">
-                    <span>01</span>
-                    Set Career Goal
-                </div>
-
-                <div class="quick-item">
-                    <span>02</span>
-                    Analyze Skills
-                </div>
-
-                <div class="quick-item">
-                    <span>03</span>
-                    Create Roadmap
-                </div>
-
-                <div class="quick-item">
-                    <span>04</span>
-                    Ask AI Copilot
-                </div>
-
-            </div>
-
-        </section>
-
-
-        <!-- Logout -->
-        <div class="logout-area">
-
-            <button
-                class="logout-button"
-                onclick="logoutUser()"
-            >
-                LOGOUT
-            </button>
+            </footer>
 
         </div>
-
-
-        <!-- Footer -->
-        <footer class="dashboard-footer">
-
-            <span>
-                AI CAREER COPILOT
-            </span>
-
-            <span>
-                CAREER OS v1.0
-            </span>
-
-            <span>
-                AI ENGINE READY
-            </span>
-
-        </footer>
 
     </main>
 
 
+    <!-- =========================================================
+         CAREER SELECTION MODAL
+    ========================================================= -->
+
+    <div
+        class="career-modal"
+        id="careerModal"
+    >
+
+        <div class="career-modal-box">
+
+            <div class="career-modal-top">
+
+                <div class="career-modal-title">
+                    CAREER PATH SELECTOR
+                </div>
+
+                <button
+                    class="career-modal-close"
+                    onclick="closeCareerModal()"
+                >
+                    ✕
+                </button>
+
+            </div>
+
+
+            <h2>
+                Choose your target career
+            </h2>
+
+            <p class="career-modal-description">
+                Select the career path you want
+                AI Career Copilot to build for you.
+            </p>
+
+
+            <div class="career-options">
+
+
+                <button
+                    class="career-option"
+                    onclick="selectCareer('AI / Machine Learning')"
+                >
+
+                    <div class="career-option-icon">
+                        🤖
+                    </div>
+
+                    <strong>
+                        AI / Machine Learning
+                    </strong>
+
+                    <small>
+                        Python, ML, Deep Learning,
+                        NLP and AI systems.
+                    </small>
+
+                </button>
+
+
+                <button
+                    class="career-option"
+                    onclick="selectCareer('Python Developer')"
+                >
+
+                    <div class="career-option-icon">
+                        🐍
+                    </div>
+
+                    <strong>
+                        Python Developer
+                    </strong>
+
+                    <small>
+                        Python, APIs, backend,
+                        automation and development.
+                    </small>
+
+                </button>
+
+
+                <button
+                    class="career-option"
+                    onclick="selectCareer('Data Scientist')"
+                >
+
+                    <div class="career-option-icon">
+                        📊
+                    </div>
+
+                    <strong>
+                        Data Scientist
+                    </strong>
+
+                    <small>
+                        Python, statistics,
+                        data analysis and ML.
+                    </small>
+
+                </button>
+
+
+                <button
+                    class="career-option"
+                    onclick="selectCareer('Full Stack Developer')"
+                >
+
+                    <div class="career-option-icon">
+                        🌐
+                    </div>
+
+                    <strong>
+                        Full Stack Developer
+                    </strong>
+
+                    <small>
+                        Frontend, backend,
+                        databases and APIs.
+                    </small>
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         NOTIFICATION
+    ========================================================= -->
+
+    <div
+        class="dashboard-notification"
+        id="dashboardNotification"
+    ></div>
+
+
+    <!-- =========================================================
+         DASHBOARD JAVASCRIPT
+    ========================================================= -->
+
     <script>
 
-        // ==========================================
-        // LOAD LOGGED-IN USER
-        // ==========================================
+    // =====================================================
+    // AI CAREER COPILOT — REAL DASHBOARD API
+    // =====================================================
 
-        const savedUser =
-            localStorage.getItem(
-                "careerCopilotUser"
+    const API_URL = "http://127.0.0.1:5000";
+
+
+    // =====================================================
+    // USER SESSION
+    // =====================================================
+
+    const currentUser =
+        localStorage.getItem("careerCopilotUser");
+
+
+    if (!currentUser) {
+
+        window.location.href = "index.html";
+
+    }
+
+
+    // =====================================================
+    // DOM ELEMENTS
+    // =====================================================
+
+    const usernameElement =
+        document.getElementById("username");
+
+    const sessionUser =
+        document.getElementById("sessionUser");
+
+    const careerName =
+        document.getElementById("careerName");
+
+    const progressPercentage =
+        document.getElementById("progressPercentage");
+
+    const progressBar =
+        document.getElementById("progressBar");
+
+    const progressCircle =
+        document.getElementById("progressCircle");
+
+    const completedSteps =
+        document.getElementById("completedSteps");
+
+    const totalSteps =
+        document.getElementById("totalSteps");
+
+    const remainingSteps =
+        document.getElementById("remainingSteps");
+
+    const progressStatus =
+        document.getElementById("progressStatus");
+
+
+    // =====================================================
+    // SHOW USER
+    // =====================================================
+
+    if (currentUser) {
+
+        usernameElement.textContent =
+            currentUser;
+
+        sessionUser.textContent =
+            currentUser;
+
+    }
+
+
+    // =====================================================
+    // LOAD DASHBOARD FROM BACKEND
+    // =====================================================
+
+    async function loadDashboard() {
+
+        if (!currentUser) {
+            return;
+        }
+
+
+        try {
+
+            const response =
+                await fetch(
+                    `${API_URL}/api/dashboard/${encodeURIComponent(currentUser)}`
+                );
+
+
+            const result =
+                await response.json();
+
+
+            console.log(
+                "Dashboard API:",
+                result
             );
 
-        if (!savedUser) {
 
-            window.location.href =
-                "index.html";
+            if (!result.success) {
 
-        } else {
+                showNotification(
+                    result.message ||
+                    "Unable to load dashboard."
+                );
 
+                return;
+
+            }
+
+
+            // =================================================
+            // NO CAREER SELECTED
+            // =================================================
+
+            if (!result.has_career) {
+
+                careerName.textContent =
+                    "No Career Selected";
+
+                progressPercentage.textContent =
+                    "0%";
+
+                completedSteps.textContent =
+                    "0";
+
+                totalSteps.textContent =
+                    "0";
+
+                remainingSteps.textContent =
+                    "0";
+
+                progressBar.style.width =
+                    "0%";
+
+                progressCircle.style.setProperty(
+                    "--progress-angle",
+                    "0deg"
+                );
+
+                progressStatus.textContent =
+                    "Select a career goal to begin your personalized roadmap.";
+
+                return;
+
+            }
+
+
+            // =================================================
+            // REAL BACKEND DATA
+            // =================================================
+
+            const progress =
+                Number(result.progress || 0);
+
+            const completed =
+                Number(
+                    result.completed_steps?.length || 0
+                );
+
+            const total =
+                Number(result.total_steps || 0);
+
+            const remaining =
+                Number(result.remaining_steps || 0);
+
+
+            // =================================================
+            // UPDATE UI
+            // =================================================
+
+            careerName.textContent =
+                result.career;
+
+
+            progressPercentage.textContent =
+                `${progress}%`;
+
+
+            completedSteps.textContent =
+                completed;
+
+
+            totalSteps.textContent =
+                total;
+
+
+            remainingSteps.textContent =
+                remaining;
+
+
+            progressBar.style.width =
+                `${progress}%`;
+
+
+            progressCircle.style.setProperty(
+                "--progress-angle",
+                `${progress * 3.6}deg`
+            );
+
+
+            // =================================================
+            // STATUS MESSAGE
+            // =================================================
+
+            if (progress === 0) {
+
+                progressStatus.textContent =
+                    "Your roadmap is ready. Start your first career step.";
+
+            }
+
+            else if (progress === 100) {
+
+                progressStatus.textContent =
+                    "🎉 Career roadmap completed! Excellent work.";
+
+            }
+
+            else {
+
+                progressStatus.textContent =
+                    `You have completed ${progress}% of your career roadmap.`;
+
+            }
+
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Dashboard loading error:",
+                error
+            );
+
+
+            showNotification(
+                "Unable to connect to Career Copilot server."
+            );
+
+        }
+
+    }
+
+
+    // =====================================================
+    // CAREER MODAL
+    // =====================================================
+
+    function openCareerModal() {
+
+        document
+            .getElementById("careerModal")
+            .classList
+            .add("show");
+
+    }
+
+
+    function closeCareerModal() {
+
+        document
+            .getElementById("careerModal")
+            .classList
+            .remove("show");
+
+    }
+
+
+    // =====================================================
+    // OPEN ROADMAP
+    // =====================================================
+
+    async function openRoadmap() {
+
+        try {
+
+            const response =
+                await fetch(
+                    `${API_URL}/api/dashboard/${encodeURIComponent(currentUser)}`
+                );
+
+
+            const result =
+                await response.json();
+
+
+            if (
+                result.success &&
+                result.has_career
+            ) {
+
+                window.location.href =
+                    "roadmap.html";
+
+            }
+
+            else {
+
+                openCareerModal();
+
+            }
+
+        }
+
+        catch (error) {
+
+            console.error(
+                error
+            );
+
+            showNotification(
+                "Unable to connect to server."
+            );
+
+        }
+
+    }
+
+
+    // =====================================================
+    // SELECT CAREER
+    // =====================================================
+
+    async function selectCareer(career) {
+
+        // Backend uses these keys
+        const careerMap = {
+
+            "AI / Machine Learning":
+                "ai",
+
+            "Python Developer":
+                "python",
+
+            "Data Scientist":
+                "data science",
+
+            "Full Stack Developer":
+                "web"
+
+        };
+
+
+        const backendCareer =
+            careerMap[career];
+
+
+        if (!backendCareer) {
+
+            showNotification(
+                "Invalid career selection."
+            );
+
+            return;
+
+        }
+
+
+        try {
+
+            const response =
+                await fetch(
+                    `${API_URL}/api/career`,
+                    {
+
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body:
+                            JSON.stringify({
+
+                                username:
+                                    currentUser,
+
+                                career:
+                                    backendCareer
+
+                            })
+
+                    }
+                );
+
+
+            const result =
+                await response.json();
+
+
+            console.log(
+                "Career selection:",
+                result
+            );
+
+
+            if (result.success) {
+
+                closeCareerModal();
+
+
+                showNotification(
+                    `Career path activated: ${career} 🚀`
+                );
+
+
+                // Reload REAL dashboard data
+                await loadDashboard();
+
+            }
+
+            else {
+
+                showNotification(
+                    result.message ||
+                    "Unable to save career."
+                );
+
+            }
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Career selection error:",
+                error
+            );
+
+
+            showNotification(
+                "Unable to connect to Career Copilot server."
+            );
+
+        }
+
+    }
+
+
+    // =====================================================
+    // COMING SOON
+    // =====================================================
+
+    function showComingSoon(feature) {
+
+        showNotification(
+            `${feature} module is coming next. 🚀`
+        );
+
+    }
+
+
+    // =====================================================
+    // NOTIFICATION
+    // =====================================================
+
+    let notificationTimer;
+
+
+    function showNotification(message) {
+
+        const notification =
             document.getElementById(
-                "username"
-            ).innerText = savedUser;
-
-        }
+                "dashboardNotification"
+            );
 
 
-        // ==========================================
-        // COMING SOON
-        // ==========================================
+        notification.textContent =
+            message;
 
-        function showComingSoon(feature) {
 
-            alert(
-                feature +
-                " module is ready for the next phase. 🚀"
+        notification.classList.add(
+            "show"
+        );
+
+
+        clearTimeout(
+            notificationTimer
+        );
+
+
+        notificationTimer =
+            setTimeout(
+                () => {
+
+                    notification.classList.remove(
+                        "show"
+                    );
+
+                },
+                3000
+            );
+
+    }
+
+
+    // =====================================================
+    // SCROLL TO PROGRESS
+    // =====================================================
+
+    function scrollToProgress() {
+
+        document
+            .getElementById("progressSection")
+            .scrollIntoView({
+
+                behavior: "smooth"
+
+            });
+
+    }
+
+
+    // =====================================================
+    // LOGOUT
+    // =====================================================
+
+    function logoutUser() {
+
+        localStorage.removeItem(
+            "careerCopilotUser"
+        );
+
+        window.location.href =
+            "index.html";
+
+    }
+
+
+    // =====================================================
+    // CLICK OUTSIDE MODAL
+    // =====================================================
+
+    document
+        .getElementById("careerModal")
+        .addEventListener(
+            "click",
+            function(event) {
+
+                if (
+                    event.target === this
+                ) {
+
+                    closeCareerModal();
+
+                }
+
+            }
+        );
+
+
+    // =====================================================
+    // PARTICLES
+    // =====================================================
+
+    const particleContainer =
+        document.getElementById(
+            "particles"
+        );
+
+
+    if (particleContainer) {
+
+        for (
+            let i = 0;
+            i < 45;
+            i++
+        ) {
+
+            const particle =
+                document.createElement(
+                    "div"
+                );
+
+
+            particle.className =
+                "particle";
+
+
+            particle.style.left =
+                `${Math.random() * 100}%`;
+
+
+            particle.style.animationDuration =
+                `${8 + Math.random() * 15}s`;
+
+
+            particle.style.animationDelay =
+                `${Math.random() * 10}s`;
+
+
+            particleContainer.appendChild(
+                particle
             );
 
         }
 
+    }
 
-        // ==========================================
-        // LOGOUT
-        // ==========================================
 
-        function logoutUser() {
+    // =====================================================
+    // START DASHBOARD
+    // =====================================================
 
-            localStorage.removeItem(
-                "careerCopilotUser"
-            );
+    loadDashboard();
 
-            window.location.href =
-                "index.html";
 
-        }
+    // =====================================================
+    // SYSTEM READY
+    // =====================================================
 
-    </script>
+    console.log(
+        "🤖 AI Career Copilot Dashboard connected to API."
+    );
+
+    console.log(
+        "👤 User:",
+        currentUser
+    );
+
+    console.log(
+        "🔗 Backend:",
+        API_URL
+    );
+
+</script>
 
 </body>
+
 </html>

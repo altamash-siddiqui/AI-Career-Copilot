@@ -455,652 +455,632 @@
 
     <script>
 
-
-        // ====================================================
-        // API CONFIGURATION
-        // ====================================================
-
-        const API_URL =
-            "http://127.0.0.1:5000";
+    // ====================================================
+    // AI CAREER COPILOT
+    // REAL BACKEND ROADMAP CONNECTION
+    // ====================================================
 
 
+    // ====================================================
+    // API CONFIGURATION
+    // ====================================================
 
-        // ====================================================
-        // USER
-        // ====================================================
+    const API_URL =
+        "http://127.0.0.1:5000";
 
-        const savedUser =
-            localStorage.getItem(
-                "careerCopilotUser"
+
+    // ====================================================
+    // USER SESSION
+    // ====================================================
+
+    const savedUser =
+        localStorage.getItem(
+            "careerCopilotUser"
+        );
+
+
+    // Login protection
+
+    if (!savedUser) {
+
+        window.location.href =
+            "index.html";
+
+    }
+
+
+    // ====================================================
+    // ELEMENTS
+    // ====================================================
+
+    const careerGoalInput =
+        document.getElementById(
+            "careerGoal"
+        );
+
+
+    const generateButton =
+        document.getElementById(
+            "generateRoadmapButton"
+        );
+
+
+    const roadmapResult =
+        document.getElementById(
+            "roadmapResult"
+        );
+
+
+    const roadmapLoading =
+        document.getElementById(
+            "roadmapLoading"
+        );
+
+
+    const roadmapEmpty =
+        document.getElementById(
+            "roadmapEmpty"
+        );
+
+
+    const progressSection =
+        document.getElementById(
+            "progressSection"
+        );
+
+
+    const progressText =
+        document.getElementById(
+            "progressText"
+        );
+
+
+    const progressPercentage =
+        document.getElementById(
+            "progressPercentage"
+        );
+
+
+    const progressFill =
+        document.getElementById(
+            "progressFill"
+        );
+
+
+    const goalDisplay =
+        document.getElementById(
+            "goalDisplay"
+        );
+
+
+    // ====================================================
+    // GENERATE / SAVE CAREER
+    // ====================================================
+
+    async function generateRoadmap() {
+
+        const goal =
+            careerGoalInput.value
+                .trim()
+                .toLowerCase();
+
+
+        if (!goal) {
+
+            alert(
+                "Please enter your career goal."
             );
 
+            careerGoalInput.focus();
 
-        // Login protection
-
-        if (!savedUser) {
-
-            window.location.href =
-                "index.html";
+            return;
 
         }
 
 
+        generateButton.disabled =
+            true;
 
-        // ====================================================
-        // ELEMENTS
-        // ====================================================
+        generateButton.innerText =
+            "GENERATING...";
 
-        const careerGoalInput =
-            document.getElementById(
-                "careerGoal"
+
+        roadmapResult.style.display =
+            "none";
+
+
+        roadmapEmpty.style.display =
+            "none";
+
+
+        progressSection.style.display =
+            "none";
+
+
+        roadmapLoading.style.display =
+            "block";
+
+
+        goalDisplay.style.display =
+            "none";
+
+
+        try {
+
+            // =================================================
+            // SAVE CAREER TO BACKEND
+            // =================================================
+
+            const careerResponse =
+                await fetch(
+                    `${API_URL}/api/career`,
+                    {
+
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body: JSON.stringify({
+
+                            username:
+                                savedUser,
+
+                            career:
+                                goal
+
+                        })
+
+                    }
+                );
+
+
+            const careerResult =
+                await careerResponse.json();
+
+
+            console.log(
+                "Career API:",
+                careerResult
             );
 
 
-        const generateButton =
-            document.getElementById(
-                "generateRoadmapButton"
+            if (
+                !careerResult.success
+            ) {
+
+                throw new Error(
+                    careerResult.message ||
+                    "Unable to save career."
+                );
+
+            }
+
+
+            // =================================================
+            // LOAD REAL ROADMAP
+            // =================================================
+
+            await loadRoadmap(
+                goal
             );
 
 
-        const roadmapResult =
-            document.getElementById(
-                "roadmapResult"
+        }
+
+        catch (error) {
+
+            console.error(
+                "Generate roadmap error:",
+                error
             );
 
 
-        const roadmapLoading =
-            document.getElementById(
-                "roadmapLoading"
-            );
+            roadmapLoading.style.display =
+                "none";
 
 
-        const roadmapEmpty =
-            document.getElementById(
-                "roadmapEmpty"
-            );
-
-
-        const progressSection =
-            document.getElementById(
-                "progressSection"
-            );
-
-
-        const progressText =
-            document.getElementById(
-                "progressText"
-            );
-
-
-        const progressPercentage =
-            document.getElementById(
-                "progressPercentage"
-            );
-
-
-        const progressFill =
-            document.getElementById(
-                "progressFill"
-            );
-
-
-        const goalDisplay =
-            document.getElementById(
-                "goalDisplay"
-            );
-
-
-
-        // ====================================================
-        // STORAGE KEY
-        // ====================================================
-
-        function getProgressKey(
-            career
-        ) {
-
-            return (
-                "careerRoadmapProgress_" +
-                savedUser +
-                "_" +
-                career
-                    .trim()
-                    .toLowerCase()
-                    .replace(
-                        /\s+/g,
-                        "_"
-                    )
+            alert(
+                error.message ||
+                "Unable to connect to AI Career Copilot server."
             );
 
         }
 
-
-
-        // ====================================================
-        // SAVE PROGRESS
-        // ====================================================
-
-        function saveProgress(
-            career,
-            completedSteps
-        ) {
-
-            const key =
-                getProgressKey(
-                    career
-                );
-
-
-            localStorage.setItem(
-                key,
-                JSON.stringify(
-                    completedSteps
-                )
-            );
-
-        }
-
-
-
-        // ====================================================
-        // LOAD PROGRESS
-        // ====================================================
-
-        function loadProgress(
-            career
-        ) {
-
-            const key =
-                getProgressKey(
-                    career
-                );
-
-
-            const saved =
-                localStorage.getItem(
-                    key
-                );
-
-
-            if (!saved) {
-
-                return [];
-
-            }
-
-
-            try {
-
-                return JSON.parse(
-                    saved
-                );
-
-            }
-
-            catch (error) {
-
-                console.error(
-                    "Progress parse error:",
-                    error
-                );
-
-                return [];
-
-            }
-
-        }
-
-
-
-        // ====================================================
-        // GENERATE ROADMAP
-        // ====================================================
-
-        async function generateRoadmap() {
-
-            const goal =
-                careerGoalInput.value
-                    .trim()
-                    .toLowerCase();
-
-
-            // Goal validation
-
-            if (!goal) {
-
-                alert(
-                    "Please enter your career goal."
-                );
-
-                careerGoalInput.focus();
-
-                return;
-
-            }
-
-
-
-            // Loading state
+        finally {
 
             generateButton.disabled =
-                true;
+                false;
 
             generateButton.innerText =
-                "GENERATING...";
+                "GENERATE ROADMAP →";
+
+        }
+
+    }
 
 
-            roadmapResult.style.display =
-                "none";
+    // ====================================================
+    // LOAD ROADMAP FROM BACKEND
+    // ====================================================
+
+    async function loadRoadmap(
+        career
+    ) {
+
+        try {
+
+            roadmapLoading.style.display =
+                "block";
 
 
             roadmapEmpty.style.display =
                 "none";
 
 
-            progressSection.style.display =
-                "none";
-
-
-            roadmapLoading.style.display =
-                "block";
-
-
-            goalDisplay.style.display =
-                "none";
-
-
-            try {
-
-
-                // =================================================
-                // CREATE / SAVE CAREER
-                // =================================================
-
-                const careerResponse =
-                    await fetch(
-                        `${API_URL}/api/career`,
-                        {
-
-                            method: "POST",
-
-                            headers: {
-                                "Content-Type":
-                                    "application/json"
-                            },
-
-                            body: JSON.stringify({
-
-                                username:
-                                    savedUser,
-
-                                career:
-                                    goal
-
-                            })
-
-                        }
-                    );
-
-
-                const careerResult =
-                    await careerResponse.json();
-
-
-                console.log(
-                    "Career API response:",
-                    careerResult
+            const response =
+                await fetch(
+                    `${API_URL}/api/roadmap/${encodeURIComponent(career)}`
                 );
 
 
+            const result =
+                await response.json();
+
+
+            console.log(
+                "Roadmap API:",
+                result
+            );
+
+
+            if (
+                !result.success
+            ) {
+
+                throw new Error(
+                    result.message ||
+                    "Roadmap not found."
+                );
+
+            }
+
+
+            const steps =
+                Array.isArray(
+                    result.steps
+                )
+                    ? result.steps
+                    : [];
+
+
+            if (
+                steps.length === 0
+            ) {
+
+                throw new Error(
+                    "No roadmap steps found."
+                );
+
+            }
+
+
+            // =================================================
+            // LOAD USER DASHBOARD DATA
+            // =================================================
+
+            const dashboardResponse =
+                await fetch(
+                    `${API_URL}/api/dashboard/${encodeURIComponent(savedUser)}`
+                );
+
+
+            const dashboardResult =
+                await dashboardResponse.json();
+
+
+            console.log(
+                "Dashboard API:",
+                dashboardResult
+            );
+
+
+            let completedSteps = [];
+
+
+            if (
+                dashboardResult.success &&
+                dashboardResult.has_career
+            ) {
+
+                completedSteps =
+                    Array.isArray(
+                        dashboardResult.completed_steps
+                    )
+                        ? dashboardResult.completed_steps
+                        : [];
+
+            }
+
+
+            // =================================================
+            // SAVE ACTIVE CAREER LOCALLY
+            // =================================================
+
+            localStorage.setItem(
+                "activeCareerGoal",
+                career
+            );
+
+
+            localStorage.setItem(
+                "careerCopilotCareer",
+                career
+            );
+
+
+            // =================================================
+            // DISPLAY ACTIVE CAREER
+            // =================================================
+
+            careerGoalInput.value =
+                career;
+
+
+            goalDisplay.innerText =
+                "ACTIVE CAREER: " +
+                career.toUpperCase();
+
+
+            goalDisplay.style.display =
+                "block";
+
+
+            // =================================================
+            // RENDER
+            // =================================================
+
+            renderRoadmap(
+                steps,
+                completedSteps
+            );
+
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Load roadmap error:",
+                error
+            );
+
+
+            roadmapLoading.style.display =
+                "none";
+
+
+            alert(
+                error.message ||
+                "Unable to load roadmap."
+            );
+
+        }
+
+    }
+
+
+    // ====================================================
+    // RENDER ROADMAP
+    // ====================================================
+
+    function renderRoadmap(
+        steps,
+        completedSteps
+    ) {
+
+        roadmapResult.innerHTML =
+            "";
+
+
+        steps.forEach(
+            function(
+                step,
+                index
+            ) {
+
+                const card =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                card.className =
+                    "career-card";
+
+
+                // =================================================
+                // IMPORTANT:
+                // Backend stores STEP TEXT,
+                // NOT INDEX.
+                // =================================================
+
+                const isCompleted =
+                    completedSteps.includes(
+                        step
+                    );
+
+
                 if (
-                    !careerResult.success
+                    isCompleted
                 ) {
 
-                    throw new Error(
-                        careerResult.message ||
-                        "Unable to create career."
+                    card.classList.add(
+                        "completed-card"
                     );
 
                 }
 
 
+                const stepNumber =
+                    String(
+                        index + 1
+                    ).padStart(
+                        2,
+                        "0"
+                    );
 
-                // =================================================
-                // LOAD ROADMAP
-                // =================================================
 
-                await loadRoadmap(
-                    careerResult.career ||
-                    goal
+                card.innerHTML = `
+
+                    <div class="card-icon">
+
+                        ${
+                            isCompleted
+                                ? "✓"
+                                : stepNumber
+                        }
+
+                    </div>
+
+
+                    <h2>
+
+                        ${
+                            isCompleted
+                                ? "✓ Step " +
+                                  (index + 1)
+                                : "Step " +
+                                  (index + 1)
+                        }
+
+                    </h2>
+
+
+                    <p>
+                        ${step}
+                    </p>
+
+
+                    <button
+                        ${
+                            isCompleted
+                                ? "disabled"
+                                : ""
+                        }
+                        onclick="completeStep(${index})"
+                    >
+
+                        ${
+                            isCompleted
+                                ? "COMPLETED ✓"
+                                : "MARK COMPLETE →"
+                        }
+
+                    </button>
+
+                `;
+
+
+                roadmapResult.appendChild(
+                    card
                 );
 
-
             }
-
-            catch (error) {
-
-                console.error(
-                    "Roadmap generation error:",
-                    error
-                );
+        );
 
 
-                roadmapLoading.style.display =
-                    "none";
+        roadmapLoading.style.display =
+            "none";
 
 
-                alert(
-                    error.message ||
-                    "Unable to connect to AI Career Copilot server."
-                );
+        roadmapEmpty.style.display =
+            "none";
 
-            }
 
-            finally {
+        roadmapResult.style.display =
+            "grid";
 
-                generateButton.disabled =
-                    false;
 
-                generateButton.innerText =
-                    "GENERATE ROADMAP →";
+        progressSection.style.display =
+            "block";
 
-            }
+
+        updateProgressDisplay(
+            steps.length,
+            completedSteps.length
+        );
+
+    }
+
+
+    // ====================================================
+    // COMPLETE ROADMAP STEP
+    // ====================================================
+
+    async function completeStep(
+        stepIndex
+    ) {
+
+        const career =
+            careerGoalInput.value
+                .trim()
+                .toLowerCase();
+
+
+        if (!career) {
+
+            alert(
+                "Career goal is missing."
+            );
+
+            return;
 
         }
 
 
+        // =================================================
+        // GET CURRENT ROADMAP
+        // =================================================
 
-        // ====================================================
-        // LOAD ROADMAP FROM BACKEND
-        // ====================================================
+        try {
 
-        async function loadRoadmap(
-            career
-        ) {
-
-            try {
-
-
-                const response =
-                    await fetch(
-                        `${API_URL}/api/roadmap/${encodeURIComponent(career)}`
-                    );
-
-
-                const result =
-                    await response.json();
-
-
-                console.log(
-                    "Roadmap response:",
-                    result
+            const roadmapResponse =
+                await fetch(
+                    `${API_URL}/api/roadmap/${encodeURIComponent(career)}`
                 );
 
 
-                if (
-                    !result.success
-                ) {
-
-                    throw new Error(
-                        result.message ||
-                        "Roadmap not found."
-                    );
-
-                }
+            const roadmapData =
+                await roadmapResponse.json();
 
 
-                const steps =
-                    Array.isArray(
-                        result.steps
-                    )
-                        ? result.steps
-                        : [];
+            if (
+                !roadmapData.success
+            ) {
 
-
-                if (
-                    steps.length === 0
-                ) {
-
-                    throw new Error(
-                        "No roadmap steps were returned by the server."
-                    );
-
-                }
-
-
-                // Store career
-
-                careerGoalInput.value =
-                    career;
-
-
-                localStorage.setItem(
-                    "activeCareerGoal",
-                    career
-                );
-
-
-                // Display goal
-
-                goalDisplay.innerText =
-                    "ACTIVE CAREER: " +
-                    career.toUpperCase();
-
-
-                goalDisplay.style.display =
-                    "block";
-
-
-                // Render
-
-                renderRoadmap(
-                    steps,
-                    career
-                );
-
-
-            }
-
-            catch (error) {
-
-                console.error(
-                    "Load roadmap error:",
-                    error
-                );
-
-
-                roadmapLoading.style.display =
-                    "none";
-
-
-                alert(
-                    error.message ||
+                throw new Error(
+                    roadmapData.message ||
                     "Unable to load roadmap."
                 );
 
             }
 
-        }
+
+            const steps =
+                roadmapData.steps;
 
 
-
-        // ====================================================
-        // RENDER ROADMAP
-        // ====================================================
-
-        function renderRoadmap(
-            steps,
-            career
-        ) {
-
-            roadmapResult.innerHTML =
-                "";
+            const step =
+                steps[stepIndex];
 
 
-            const completedSteps =
-                loadProgress(
-                    career
-                );
-
-
-            steps.forEach(
-                function(
-                    step,
-                    index
-                ) {
-
-
-                    const card =
-                        document.createElement(
-                            "div"
-                        );
-
-
-                    card.className =
-                        "career-card";
-
-
-                    const isCompleted =
-                        completedSteps.includes(
-                            index
-                        );
-
-
-                    if (
-                        isCompleted
-                    ) {
-
-                        card.classList.add(
-                            "completed-card"
-                        );
-
-                        card.dataset.completed =
-                            "true";
-
-                    }
-
-                    else {
-
-                        card.dataset.completed =
-                            "false";
-
-                    }
-
-
-                    const stepNumber =
-                        String(
-                            index + 1
-                        ).padStart(
-                            2,
-                            "0"
-                        );
-
-
-                    const safeStep =
-                        String(
-                            step
-                        );
-
-
-                    card.innerHTML = `
-
-                        <div class="card-icon">
-                            ${
-                                isCompleted
-                                    ? "✓"
-                                    : stepNumber
-                            }
-                        </div>
-
-                        <h2>
-                            ${
-                                isCompleted
-                                    ? "✓ Step " + (index + 1)
-                                    : "Step " + (index + 1)
-                            }
-                        </h2>
-
-                        <p>
-                            ${safeStep}
-                        </p>
-
-                        <button
-                            ${
-                                isCompleted
-                                    ? "disabled"
-                                    : ""
-                            }
-                            onclick="completeStep(${index})"
-                        >
-                            ${
-                                isCompleted
-                                    ? "COMPLETED ✓"
-                                    : "MARK COMPLETE →"
-                            }
-                        </button>
-
-                    `;
-
-
-                    roadmapResult.appendChild(
-                        card
-                    );
-
-                }
-            );
-
-
-            roadmapLoading.style.display =
-                "none";
-
-
-            roadmapEmpty.style.display =
-                "none";
-
-
-            roadmapResult.style.display =
-                "grid";
-
-
-            progressSection.style.display =
-                "block";
-
-
-            updateProgressDisplay(
-                steps.length,
-                completedSteps
-            );
-
-
-            // Scroll to roadmap
-
-            roadmapResult.scrollIntoView({
-                behavior: "smooth",
-                block: "start"
-            });
-
-        }
-
-
-
-        // ====================================================
-        // COMPLETE STEP
-        // ====================================================
-
-        function completeStep(
-            stepIndex
-        ) {
-
-            const career =
-                careerGoalInput.value
-                    .trim()
-                    .toLowerCase();
-
-
-            if (!career) {
+            if (!step) {
 
                 alert(
-                    "Career goal is missing."
+                    "Invalid roadmap step."
                 );
 
                 return;
@@ -1108,133 +1088,92 @@
             }
 
 
-            const completedSteps =
-                loadProgress(
-                    career
+            // =================================================
+            // CALL BACKEND
+            // =================================================
+
+            const response =
+                await fetch(
+                    `${API_URL}/api/complete-step`,
+                    {
+
+                        method: "POST",
+
+                        headers: {
+
+                            "Content-Type":
+                                "application/json"
+
+                        },
+
+                        body: JSON.stringify({
+
+                            username:
+                                savedUser,
+
+                            step:
+                                step
+
+                        })
+
+                    }
                 );
 
 
-            // Already completed
+            const result =
+                await response.json();
+
+
+            console.log(
+                "Complete Step API:",
+                result
+            );
+
+
+            // =================================================
+            // BACKEND ERROR
+            // =================================================
 
             if (
-                completedSteps.includes(
-                    stepIndex
-                )
+                !result.success
             ) {
 
-                return;
+                if (
+                    response.status === 409
+                ) {
+
+                    alert(
+                        "This step is already completed."
+                    );
+
+                    await loadRoadmap(
+                        career
+                    );
+
+                    return;
+
+                }
+
+
+                throw new Error(
+                    result.message ||
+                    "Unable to complete step."
+                );
 
             }
 
 
-            // Add step
+            // =================================================
+            // SUCCESS
+            // =================================================
 
-            completedSteps.push(
-                stepIndex
+            await loadRoadmap(
+                career
             );
 
-
-            // Sort
-
-            completedSteps.sort(
-                function(a, b) {
-                    return a - b;
-                }
-            );
-
-
-            // Save
-
-            saveProgress(
-                career,
-                completedSteps
-            );
-
-
-            // Update card
-
-            const cards =
-                document.querySelectorAll(
-                    "#roadmapResult .career-card"
-                );
-
-
-            const card =
-                cards[stepIndex];
-
-
-            if (card) {
-
-                card.dataset.completed =
-                    "true";
-
-
-                card.classList.add(
-                    "completed-card"
-                );
-
-
-                const icon =
-                    card.querySelector(
-                        ".card-icon"
-                    );
-
-
-                if (icon) {
-
-                    icon.innerText =
-                        "✓";
-
-                }
-
-
-                const title =
-                    card.querySelector(
-                        "h2"
-                    );
-
-
-                if (title) {
-
-                    title.innerText =
-                        "✓ Step " +
-                        (stepIndex + 1);
-
-                }
-
-
-                const button =
-                    card.querySelector(
-                        "button"
-                    );
-
-
-                if (button) {
-
-                    button.innerText =
-                        "COMPLETED ✓";
-
-                    button.disabled =
-                        true;
-
-                }
-
-            }
-
-
-            // Update progress
-
-            updateProgressDisplay(
-                cards.length,
-                completedSteps
-            );
-
-
-            // Completion message
 
             if (
-                completedSteps.length ===
-                cards.length
+                result.progress === 100
             ) {
 
                 alert(
@@ -1246,92 +1185,113 @@
             else {
 
                 alert(
-                    "Step completed! 🎯"
+                    "Step completed successfully! 🎯"
                 );
 
             }
 
         }
 
+        catch (error) {
+
+            console.error(
+                "Complete step error:",
+                error
+            );
 
 
-        // ====================================================
-        // UPDATE PROGRESS
-        // ====================================================
-
-        function updateProgressDisplay(
-            total,
-            completedSteps
-        ) {
-
-            const completed =
-                completedSteps.length;
-
-
-            const percentage =
-                total > 0
-                    ? Math.round(
-                        (
-                            completed /
-                            total
-                        ) * 100
-                    )
-                    : 0;
-
-
-            progressText.innerText =
-                `${completed} / ${total} steps completed`;
-
-
-            progressPercentage.innerText =
-                `${percentage}%`;
-
-
-            progressFill.style.width =
-                `${percentage}%`;
+            alert(
+                error.message ||
+                "Unable to complete roadmap step."
+            );
 
         }
 
+    }
 
 
-        // ====================================================
-        // RESTORE LAST CAREER
-        // ====================================================
+    // ====================================================
+    // UPDATE PROGRESS
+    // ====================================================
 
-        async function restoreLastCareer() {
+    function updateProgressDisplay(
+        total,
+        completed
+    ) {
 
-            const lastCareer =
-                localStorage.getItem(
-                    "activeCareerGoal"
-                );
-
-
-            if (!lastCareer) {
-
-                roadmapEmpty.style.display =
-                    "block";
-
-                return;
-
-            }
+        const percentage =
+            total > 0
+                ? Math.round(
+                    (
+                        completed /
+                        total
+                    ) * 100
+                )
+                : 0;
 
 
-            careerGoalInput.value =
-                lastCareer;
+        progressText.innerText =
+            `${completed} / ${total} steps completed`;
 
+
+        progressPercentage.innerText =
+            `${percentage}%`;
+
+
+        progressFill.style.width =
+            `${percentage}%`;
+
+    }
+
+
+    // ====================================================
+    // RESTORE LAST CAREER
+    // ====================================================
+
+    async function restoreLastCareer() {
+
+        let lastCareer =
+            localStorage.getItem(
+                "activeCareerGoal"
+            );
+
+
+        // =================================================
+        // IF LOCAL STORAGE HAS NO CAREER,
+        // GET IT FROM BACKEND DASHBOARD
+        // =================================================
+
+        if (!lastCareer) {
 
             try {
 
-                await loadRoadmap(
-                    lastCareer
-                );
+                const response =
+                    await fetch(
+                        `${API_URL}/api/dashboard/${encodeURIComponent(savedUser)}`
+                    );
+
+
+                const result =
+                    await response.json();
+
+
+                if (
+                    result.success &&
+                    result.has_career
+                ) {
+
+                    lastCareer =
+                        result.career
+                            .toLowerCase();
+
+                }
 
             }
 
             catch (error) {
 
                 console.error(
-                    "Restore career error:",
+                    "Backend career restore error:",
                     error
                 );
 
@@ -1340,67 +1300,99 @@
         }
 
 
+        if (!lastCareer) {
 
-        // ====================================================
-        // ENTER KEY
-        // ====================================================
+            roadmapEmpty.style.display =
+                "block";
 
-        careerGoalInput.addEventListener(
-            "keydown",
-            function(event) {
-
-                if (
-                    event.key === "Enter"
-                ) {
-
-                    event.preventDefault();
-
-                    generateRoadmap();
-
-                }
-
-            }
-        );
-
-
-
-        // ====================================================
-        // DASHBOARD
-        // ====================================================
-
-        function goToDashboard() {
-
-            window.location.href =
-                "dashboard.html";
+            return;
 
         }
 
 
-
-        // ====================================================
-        // INITIAL PAGE LOAD
-        // ====================================================
-
-        document.addEventListener(
-            "DOMContentLoaded",
-            function() {
-
-                if (!savedUser) {
-
-                    window.location.href =
-                        "index.html";
-
-                    return;
-
-                }
+        careerGoalInput.value =
+            lastCareer;
 
 
-                restoreLastCareer();
-
-            }
+        await loadRoadmap(
+            lastCareer
         );
 
-    </script>
+    }
+
+
+    // ====================================================
+    // ENTER KEY
+    // ====================================================
+
+    careerGoalInput.addEventListener(
+        "keydown",
+        function(event) {
+
+            if (
+                event.key === "Enter"
+            ) {
+
+                event.preventDefault();
+
+                generateRoadmap();
+
+            }
+
+        }
+    );
+
+
+    // ====================================================
+    // BACK TO DASHBOARD
+    // ====================================================
+
+    function goToDashboard() {
+
+        window.location.href =
+            "dashboard.html";
+
+    }
+
+
+    // ====================================================
+    // INITIAL PAGE LOAD
+    // ====================================================
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        function() {
+
+            if (!savedUser) {
+
+                window.location.href =
+                    "index.html";
+
+                return;
+
+            }
+
+
+            restoreLastCareer();
+
+        }
+    );
+
+
+    // ====================================================
+    // SYSTEM READY
+    // ====================================================
+
+    console.log(
+        "🤖 AI Career Copilot Roadmap connected to backend."
+    );
+
+    console.log(
+        "👤 User:",
+        savedUser
+    );
+
+</script>
 
 
 </body>
