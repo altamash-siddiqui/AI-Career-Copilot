@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>AI Career Copilot - Dashboard</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- Background -->
+    <div class="background-grid"></div>
+
+    <div class="ambient ambient-one"></div>
+    <div class="ambient ambient-two"></div>
+    <div class="ambient ambient-three"></div>
+
+    <!-- Dashboard -->
+    <main class="dashboard">
+
+        <!-- Top Navigation -->
+        <header class="dashboard-header">
+
+            <div class="brand">
+                <div class="brand-icon">✦</div>
+
+                <div>
+                    <div class="brand-title">
+                        AI CAREER
+                    </div>
+
+                    <div class="brand-subtitle">
+                        COPILOT
+                    </div>
+                </div>
+            </div>
+
+            <div class="system-status">
+                <span class="status-dot"></span>
+                SYSTEM ONLINE
+            </div>
+
+        </header>
+
+
+        <!-- Welcome Section -->
+        <section class="welcome-section">
+
+            <div>
+
+                <p class="eyebrow">
+                    CAREER INTELLIGENCE SYSTEM
+                </p>
+
+                <h1>
+                    Welcome,
+                    <span id="username">
+                        Career Explorer
+                    </span>.
+                </h1>
+
+                <p class="welcome-text">
+                    Your AI-powered career command center.
+                    Plan, analyze and accelerate your
+                    professional journey.
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <!-- Feature Cards -->
+        <section class="feature-grid">
+
+            <div class="career-card">
+
+                <div class="card-icon">
+                    🧭
+                </div>
+
+                <h2>
+                    Career Roadmap
+                </h2>
+
+                <p>
+                    Build a personalized roadmap
+                    for your career goals.
+                </p>
+
+                <button onclick="window.location.href='roadmap.html'">
+                    OPEN ROADMAP →
+                </button>
+
+            </div>
+
+
+            <div class="career-card">
+
+                <div class="card-icon">
+                    📄
+                </div>
+
+                <h2>
+                    Resume Intelligence
+                </h2>
+
+                <p>
+                    Analyze your resume and discover
+                    opportunities to improve it.
+                </p>
+
+                <button
+                    onclick="showComingSoon('Resume Intelligence')"
+                >
+                    ANALYZE RESUME →
+                </button>
+
+            </div>
+
+
+            <div class="career-card">
+
+                <div class="card-icon">
+                    🤖
+                </div>
+
+                <h2>
+                    AI Guidance
+                </h2>
+
+                <p>
+                    Get intelligent guidance for
+                    your next career decision.
+                </p>
+
+                <button
+                    onclick="showComingSoon('AI Guidance')"
+                >
+                    ASK COPILOT →
+                </button>
+
+            </div>
+
+
+            <div class="career-card">
+
+                <div class="card-icon">
+                    📊
+                </div>
+
+                <h2>
+                    Career Progress
+                </h2>
+
+                <p>
+                    Track your skills, goals and
+                    professional progress.
+                </p>
+
+                <button
+                    onclick="showComingSoon('Career Progress')"
+                >
+                    VIEW PROGRESS →
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <!-- Quick Actions -->
+        <section class="quick-section">
+
+            <div class="section-title">
+                QUICK ACCESS
+            </div>
+
+            <div class="quick-grid">
+
+                <div class="quick-item">
+                    <span>01</span>
+                    Set Career Goal
+                </div>
+
+                <div class="quick-item">
+                    <span>02</span>
+                    Analyze Skills
+                </div>
+
+                <div class="quick-item">
+                    <span>03</span>
+                    Create Roadmap
+                </div>
+
+                <div class="quick-item">
+                    <span>04</span>
+                    Ask AI Copilot
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Logout -->
+        <div class="logout-area">
+
+            <button
+                class="logout-button"
+                onclick="logoutUser()"
+            >
+                LOGOUT
+            </button>
+
+        </div>
+
+
+        <!-- Footer -->
+        <footer class="dashboard-footer">
+
+            <span>
+                AI CAREER COPILOT
+            </span>
+
+            <span>
+                CAREER OS v1.0
+            </span>
+
+            <span>
+                AI ENGINE READY
+            </span>
+
+        </footer>
+
+    </main>
+
+
+    <script>
+
+        // ==========================================
+        // LOAD LOGGED-IN USER
+        // ==========================================
+
+        const savedUser =
+            localStorage.getItem(
+                "careerCopilotUser"
+            );
+
+        if (!savedUser) {
+
+            window.location.href =
+                "index.html";
+
+        } else {
+
+            document.getElementById(
+                "username"
+            ).innerText = savedUser;
+
+        }
+
+
+        // ==========================================
+        // COMING SOON
+        // ==========================================
+
+        function showComingSoon(feature) {
+
+            alert(
+                feature +
+                " module is ready for the next phase. 🚀"
+            );
+
+        }
+
+
+        // ==========================================
+        // LOGOUT
+        // ==========================================
+
+        function logoutUser() {
+
+            localStorage.removeItem(
+                "careerCopilotUser"
+            );
+
+            window.location.href =
+                "index.html";
+
+        }
+
+    </script>
+
+</body>
+</html>
