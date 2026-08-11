@@ -9,6 +9,7 @@ from datetime import datetime
 from person import Person
 from career_features import CareerFeatures
 from utils import get_user_name, get_career_interest
+from resume_analyzer import ResumeAnalyzer
 
 
 # ============================================================
@@ -104,6 +105,7 @@ class CareerCopilot(Person, CareerFeatures):
     def __init__(self):
         super().__init__()
         self.current_user = None
+        self.resume_analyzer = ResumeAnalyzer()
 
     # ========================================================
     # GET ROADMAP

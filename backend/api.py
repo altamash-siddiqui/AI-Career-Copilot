@@ -7,7 +7,7 @@ import os
 
 from datetime import datetime
 
-from resume_analyzer import ResumeAnalyzer
+from services.resume_service import resume_service
 from resume_manager import ResumeManager
 
 
@@ -18,6 +18,9 @@ from resume_manager import ResumeManager
 app = Flask(__name__)
 
 CORS(app)
+
+# Maximum upload size: 10 MB
+app.config["MAX_CONTENT_LENGTH"] = 10 * 1024 * 1024
 
 
 # ============================================================
@@ -30,12 +33,10 @@ BASE_DIR = os.path.dirname(
     )
 )
 
-
 USERS_FILE = os.path.join(
     BASE_DIR,
     "users.json"
 )
-
 
 DATA_FILE = os.path.join(
     BASE_DIR,
@@ -53,7 +54,6 @@ RESUME_UPLOAD_DIR = os.path.join(
     "resumes"
 )
 
-
 os.makedirs(
     RESUME_UPLOAD_DIR,
     exist_ok=True
@@ -66,8 +66,6 @@ ALLOWED_RESUME_EXTENSIONS = {
     ".txt"
 }
 
-
-resume_analyzer = ResumeAnalyzer()
 
 resume_manager = ResumeManager()
 
@@ -101,7 +99,6 @@ ROADMAPS = {
         "Learn Pandas",
         "Learn SQL"
     ]
-
 }
 
 
@@ -109,16 +106,11 @@ ROADMAPS = {
 # JSON HELPERS
 # ============================================================
 
-def load_json(
-    file_path,
-    default
-):
+def load_json(file_path, default):
 
     try:
 
-        if not os.path.exists(
-            file_path
-        ):
+        if not os.path.exists(file_path):
 
             return default
 
@@ -128,9 +120,7 @@ def load_json(
             encoding="utf-8"
         ) as file:
 
-            data = json.load(
-                file
-            )
+            data = json.load(file)
 
         return data
 
@@ -143,10 +133,7 @@ def load_json(
         return default
 
 
-def save_json(
-    file_path,
-    data
-):
+def save_json(file_path, data):
 
     with open(
         file_path,
@@ -174,8 +161,7 @@ def status():
 
     return jsonify({
 
-        "success":
-            True,
+        "success": True,
 
         "message":
             "AI Career Copilot API is running 🚀",
@@ -200,14 +186,12 @@ def register():
         silent=True
     ) or {}
 
-
     username = str(
         data.get(
             "username",
             ""
         )
     ).strip()
-
 
     password = str(
         data.get(
@@ -216,25 +200,21 @@ def register():
         )
     ).strip()
 
-
     if not username or not password:
 
         return jsonify({
 
-            "success":
-                False,
+            "success": False,
 
             "message":
                 "Username and password are required."
 
         }), 400
 
-
     users = load_json(
         USERS_FILE,
         []
     )
-
 
     if not isinstance(
         users,
@@ -242,7 +222,6 @@ def register():
     ):
 
         users = []
-
 
     for user in users:
 
@@ -253,7 +232,6 @@ def register():
             )
         ).strip()
 
-
         if (
             saved_username.lower()
             ==
@@ -262,14 +240,12 @@ def register():
 
             return jsonify({
 
-                "success":
-                    False,
+                "success": False,
 
                 "message":
                     "Username already exists."
 
             }), 409
-
 
     users.append({
 
@@ -281,12 +257,10 @@ def register():
 
     })
 
-
     save_json(
         USERS_FILE,
         users
     )
-
 
     return jsonify({
 
@@ -316,14 +290,12 @@ def login():
         silent=True
     ) or {}
 
-
     username = str(
         data.get(
             "username",
             ""
         )
     ).strip()
-
 
     password = str(
         data.get(
@@ -332,25 +304,21 @@ def login():
         )
     ).strip()
 
-
     if not username or not password:
 
         return jsonify({
 
-            "success":
-                False,
+            "success": False,
 
             "message":
                 "Username and password are required."
 
         }), 400
 
-
     users = load_json(
         USERS_FILE,
         []
     )
-
 
     if not isinstance(
         users,
@@ -358,7 +326,6 @@ def login():
     ):
 
         users = []
-
 
     for user in users:
 
@@ -369,7 +336,6 @@ def login():
             )
         ).strip()
 
-
         saved_password = str(
             user.get(
                 "password",
@@ -377,14 +343,11 @@ def login():
             )
         )
 
-
         if (
             saved_username.lower()
             ==
             username.lower()
-
             and
-
             saved_password
             ==
             password
@@ -402,7 +365,6 @@ def login():
                     saved_username
 
             })
-
 
     return jsonify({
 
@@ -427,12 +389,10 @@ def dashboard(username):
 
     username = username.strip()
 
-
     careers = load_json(
         DATA_FILE,
         []
     )
-
 
     if not isinstance(
         careers,
@@ -441,23 +401,17 @@ def dashboard(username):
 
         careers = []
 
-
     user_records = []
-
 
     for record in careers:
 
         record_user = record.get(
-
             "user",
-
             record.get(
                 "name",
                 ""
             )
-
         )
-
 
         if (
             str(record_user).lower()
@@ -468,7 +422,6 @@ def dashboard(username):
             user_records.append(
                 record
             )
-
 
     # ========================================================
     # NO CAREER
@@ -495,13 +448,11 @@ def dashboard(username):
 
         })
 
-
     # ========================================================
     # CURRENT CAREER
     # ========================================================
 
     current = user_records[-1]
-
 
     career = str(
         current.get(
@@ -510,12 +461,10 @@ def dashboard(username):
         )
     ).lower()
 
-
     completed_steps = current.get(
         "completed_steps",
         []
     )
-
 
     if not isinstance(
         completed_steps,
@@ -524,17 +473,14 @@ def dashboard(username):
 
         completed_steps = []
 
-
     roadmap = ROADMAPS.get(
         career,
         []
     )
 
-
     total_steps = len(
         roadmap
     )
-
 
     valid_completed_steps = [
 
@@ -546,11 +492,9 @@ def dashboard(username):
 
     ]
 
-
     completed_count = len(
         valid_completed_steps
     )
-
 
     if total_steps > 0:
 
@@ -574,7 +518,6 @@ def dashboard(username):
                 0
             )
         )
-
 
     return jsonify({
 
@@ -639,12 +582,10 @@ def roadmap(career):
 
     career = career.strip().lower()
 
-
     steps = ROADMAPS.get(
         career,
         []
     )
-
 
     if not steps:
 
@@ -657,7 +598,6 @@ def roadmap(career):
                 "Career roadmap not available."
 
         }), 404
-
 
     return jsonify({
 
@@ -690,7 +630,6 @@ def select_career():
         silent=True
     ) or {}
 
-
     username = str(
         data.get(
             "username",
@@ -698,14 +637,12 @@ def select_career():
         )
     ).strip()
 
-
     career = str(
         data.get(
             "career",
             ""
         )
     ).strip().lower()
-
 
     if not username or not career:
 
@@ -719,7 +656,6 @@ def select_career():
 
         }), 400
 
-
     if career not in ROADMAPS:
 
         return jsonify({
@@ -732,12 +668,10 @@ def select_career():
 
         }), 400
 
-
     careers = load_json(
         DATA_FILE,
         []
     )
-
 
     if not isinstance(
         careers,
@@ -746,23 +680,17 @@ def select_career():
 
         careers = []
 
-
     existing = None
-
 
     for record in careers:
 
         record_user = record.get(
-
             "user",
-
             record.get(
                 "name",
                 ""
             )
-
         )
-
 
         if (
             str(record_user).lower()
@@ -773,7 +701,6 @@ def select_career():
             existing = record
 
             break
-
 
     # ========================================================
     # UPDATE EXISTING CAREER
@@ -803,7 +730,6 @@ def select_career():
                 "%Y-%m-%d %H:%M:%S"
             )
         )
-
 
     # ========================================================
     # CREATE NEW CAREER
@@ -838,12 +764,10 @@ def select_career():
 
         })
 
-
     save_json(
         DATA_FILE,
         careers
     )
-
 
     return jsonify({
 
@@ -879,7 +803,6 @@ def complete_step():
         silent=True
     ) or {}
 
-
     username = str(
         data.get(
             "username",
@@ -887,14 +810,12 @@ def complete_step():
         )
     ).strip()
 
-
     step = str(
         data.get(
             "step",
             ""
         )
     ).strip()
-
 
     if not username or not step:
 
@@ -908,12 +829,10 @@ def complete_step():
 
         }), 400
 
-
     careers = load_json(
         DATA_FILE,
         []
     )
-
 
     if not isinstance(
         careers,
@@ -922,23 +841,17 @@ def complete_step():
 
         careers = []
 
-
     selected = None
-
 
     for record in careers:
 
         record_user = record.get(
-
             "user",
-
             record.get(
                 "name",
                 ""
             )
-
         )
-
 
         if (
             str(record_user).lower()
@@ -949,7 +862,6 @@ def complete_step():
             selected = record
 
             break
-
 
     if not selected:
 
@@ -963,7 +875,6 @@ def complete_step():
 
         }), 404
 
-
     career = str(
         selected.get(
             "career",
@@ -971,12 +882,10 @@ def complete_step():
         )
     ).lower()
 
-
     roadmap_steps = ROADMAPS.get(
         career,
         []
     )
-
 
     if not roadmap_steps:
 
@@ -990,7 +899,6 @@ def complete_step():
 
         }), 404
 
-
     if step not in roadmap_steps:
 
         return jsonify({
@@ -1003,12 +911,10 @@ def complete_step():
 
         }), 400
 
-
     completed_steps = selected.get(
         "completed_steps",
         []
     )
-
 
     if not isinstance(
         completed_steps,
@@ -1016,7 +922,6 @@ def complete_step():
     ):
 
         completed_steps = []
-
 
     if step in completed_steps:
 
@@ -1030,21 +935,17 @@ def complete_step():
 
         }), 409
 
-
     completed_steps.append(
         step
     )
-
 
     selected[
         "completed_steps"
     ] = completed_steps
 
-
     total_steps = len(
         roadmap_steps
     )
-
 
     progress = int(
 
@@ -1058,17 +959,14 @@ def complete_step():
 
     )
 
-
     selected[
         "progress"
     ] = progress
-
 
     save_json(
         DATA_FILE,
         careers
     )
-
 
     return jsonify({
 
@@ -1089,13 +987,10 @@ def complete_step():
 
         "remaining_steps":
             max(
-
                 0,
-
                 total_steps
                 -
                 len(completed_steps)
-
             )
 
     })
@@ -1113,12 +1008,10 @@ def history(username):
 
     username = username.strip()
 
-
     careers = load_json(
         DATA_FILE,
         []
     )
-
 
     if not isinstance(
         careers,
@@ -1127,23 +1020,17 @@ def history(username):
 
         careers = []
 
-
     user_records = []
-
 
     for record in careers:
 
         record_user = record.get(
-
             "user",
-
             record.get(
                 "name",
                 ""
             )
-
         )
-
 
         if (
             str(record_user).lower()
@@ -1154,7 +1041,6 @@ def history(username):
             user_records.append(
                 record
             )
-
 
     return jsonify({
 
@@ -1196,7 +1082,6 @@ def analyze_resume():
             )
         ).strip()
 
-
         if not username:
 
             return jsonify({
@@ -1208,7 +1093,6 @@ def analyze_resume():
                     "Username is required."
 
             }), 400
-
 
         # ----------------------------------------------------
         # FILE CHECK
@@ -1226,11 +1110,9 @@ def analyze_resume():
 
             }), 400
 
-
         resume_file = request.files[
             "resume"
         ]
-
 
         if not resume_file.filename:
 
@@ -1244,7 +1126,6 @@ def analyze_resume():
 
             }), 400
 
-
         # ----------------------------------------------------
         # FILE EXTENSION
         # ----------------------------------------------------
@@ -1253,11 +1134,9 @@ def analyze_resume():
             resume_file.filename
         )
 
-
         extension = os.path.splitext(
             original_filename
         )[1].lower()
-
 
         if (
             extension
@@ -1276,7 +1155,6 @@ def analyze_resume():
 
             }), 400
 
-
         # ----------------------------------------------------
         # SECURE FILE NAME
         # ----------------------------------------------------
@@ -1284,7 +1162,6 @@ def analyze_resume():
         safe_filename = secure_filename(
             original_filename
         )
-
 
         if not safe_filename:
 
@@ -1298,22 +1175,19 @@ def analyze_resume():
 
             }), 400
 
-
         # ----------------------------------------------------
         # UNIQUE FILE NAME
         # ----------------------------------------------------
 
         timestamp = datetime.now().strftime(
-            "%Y%m%d_%H%M%S"
+            "%Y%m%d_%H%M%S_%f"
         )
-
 
         filename_without_extension = (
             os.path.splitext(
                 safe_filename
             )[0]
         )
-
 
         final_filename = (
 
@@ -1324,12 +1198,10 @@ def analyze_resume():
 
         )
 
-
         file_path = os.path.join(
             RESUME_UPLOAD_DIR,
             final_filename
         )
-
 
         # ----------------------------------------------------
         # SAVE FILE
@@ -1339,17 +1211,11 @@ def analyze_resume():
             file_path
         )
 
-
         # ----------------------------------------------------
         # ANALYZE RESUME
         # ----------------------------------------------------
 
-        analysis = (
-            resume_analyzer.analyze_file(
-                file_path
-            )
-        )
-
+        analysis = resume_service.analyze_resume(file_path)
 
         # ----------------------------------------------------
         # SAVE ANALYSIS
@@ -1398,98 +1264,28 @@ def analyze_resume():
 
         )
 
-
         # ----------------------------------------------------
         # RESPONSE
         # ----------------------------------------------------
 
+        # Return the complete analyzer payload so the frontend can
+        # render all available resume intelligence data.
+        analysis_payload = dict(analysis)
+        analysis_payload["resume_file"] = final_filename
+
         return jsonify({
-
-            "success":
-                True,
-
-            "message":
-                "Resume analyzed successfully.",
-
-            "username":
-                username,
-
-            "resume_file":
-                final_filename,
-
-            "analysis": {
-
-                "name":
-                    analysis.get(
-                        "name",
-                        ""
-                    ),
-
-                "email":
-                    analysis.get(
-                        "email",
-                        ""
-                    ),
-
-                "phone":
-                    analysis.get(
-                        "phone",
-                        ""
-                    ),
-
-                "skills":
-                    analysis.get(
-                        "skills",
-                        []
-                    ),
-
-                "sections":
-                    analysis.get(
-                        "sections",
-                        []
-                    ),
-
-                "resume_strength_score":
-                    analysis.get(
-                        "resume_strength_score",
-                        0
-                    ),
-
-                "ats_score":
-                    analysis.get(
-                        "ats_score",
-                        0
-                    ),
-
-                "suggestions":
-                    analysis.get(
-                        "suggestions",
-                        []
-                    ),
-
-                "word_count":
-                    analysis.get(
-                        "word_count",
-                        0
-                    ),
-
-                "character_count":
-                    analysis.get(
-                        "character_count",
-                        0
-                    )
-
-            }
-
+            "success": True,
+            "message": "Resume analyzed successfully.",
+            "username": username,
+            "resume_file": final_filename,
+            "analysis": analysis_payload
         }), 200
-
 
     except Exception as e:
 
         print(
             f"Resume analysis error: {e}"
         )
-
 
         return jsonify({
 
@@ -1516,7 +1312,6 @@ def resume_history(username):
 
         username = username.strip()
 
-
         if not username:
 
             return jsonify({
@@ -1529,13 +1324,11 @@ def resume_history(username):
 
             }), 400
 
-
         history = (
             resume_manager.get_user_resume_history(
                 username
             )
         )
-
 
         return jsonify({
 
@@ -1552,7 +1345,6 @@ def resume_history(username):
                 history
 
         }), 200
-
 
     except Exception as e:
 
@@ -1581,13 +1373,23 @@ def latest_resume(username):
 
         username = username.strip()
 
+        if not username:
+
+            return jsonify({
+
+                "success":
+                    False,
+
+                "message":
+                    "Username is required."
+
+            }), 400
 
         latest = (
             resume_manager.get_latest_analysis(
                 username
             )
         )
-
 
         if latest is None:
 
@@ -1607,7 +1409,6 @@ def latest_resume(username):
 
             }), 200
 
-
         return jsonify({
 
             "success":
@@ -1624,7 +1425,6 @@ def latest_resume(username):
 
         }), 200
 
-
     except Exception as e:
 
         return jsonify({
@@ -1639,7 +1439,25 @@ def latest_resume(username):
 
 
 # ============================================================
-# ERROR HANDLER
+# FILE TOO LARGE
+# ============================================================
+
+@app.errorhandler(413)
+def file_too_large(error):
+
+    return jsonify({
+
+        "success":
+            False,
+
+        "message":
+            "Resume file is too large. Maximum allowed size is 10 MB."
+
+    }), 413
+
+
+# ============================================================
+# ERROR HANDLER - 404
 # ============================================================
 
 @app.errorhandler(404)
@@ -1732,8 +1550,11 @@ if __name__ == "__main__":
         "Supported: PDF | DOCX | TXT"
     )
 
-    print("=" * 50)
+    print(
+        "Maximum Upload: 10 MB"
+    )
 
+    print("=" * 50)
 
     app.run(
 

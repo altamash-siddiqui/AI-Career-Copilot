@@ -164,7 +164,6 @@ async function loginUser() {
                 loggedInUsername
             );
 
-            // Optional login status
             localStorage.setItem(
                 "careerCopilotLoggedIn",
                 "true"
@@ -338,7 +337,6 @@ if (loginButton) {
         "click",
         loginUser
     );
-
 }
 
 if (registerButton) {
@@ -347,7 +345,6 @@ if (registerButton) {
         "click",
         registerUser
     );
-
 }
 
 // ============================================================
@@ -369,7 +366,6 @@ if (passwordInput) {
 
         }
     );
-
 }
 
 // ============================================================
@@ -406,9 +402,7 @@ if (
                 passwordToggle.innerText =
                     "◉";
 
-            }
-
-            else {
+            } else {
 
                 passwordField.type =
                     "password";
@@ -419,7 +413,6 @@ if (
 
         }
     );
-
 }
 
 // ============================================================
@@ -448,9 +441,7 @@ checkBackendConnection()
                 "🟢 AI Career Copilot system ONLINE."
             );
 
-        }
-
-        else {
+        } else {
 
             console.warn(
                 "🔴 AI Career Copilot backend OFFLINE."
