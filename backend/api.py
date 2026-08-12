@@ -10,6 +10,12 @@ from datetime import datetime
 from services.resume_service import resume_service
 from resume_manager import ResumeManager
 
+# ============================================================
+# DAY 31 - ATS JOB MATCHER
+# ============================================================
+
+from job_matcher import match_resume_to_job
+
 
 # ============================================================
 # FLASK APP
@@ -111,7 +117,6 @@ def load_json(file_path, default):
     try:
 
         if not os.path.exists(file_path):
-
             return default
 
         with open(
@@ -423,10 +428,6 @@ def dashboard(username):
                 record
             )
 
-    # ========================================================
-    # NO CAREER
-    # ========================================================
-
     if not user_records:
 
         return jsonify({
@@ -447,10 +448,6 @@ def dashboard(username):
                 []
 
         })
-
-    # ========================================================
-    # CURRENT CAREER
-    # ========================================================
 
     current = user_records[-1]
 
@@ -702,10 +699,6 @@ def select_career():
 
             break
 
-    # ========================================================
-    # UPDATE EXISTING CAREER
-    # ========================================================
-
     if existing:
 
         existing["career"] = career
@@ -730,10 +723,6 @@ def select_career():
                 "%Y-%m-%d %H:%M:%S"
             )
         )
-
-    # ========================================================
-    # CREATE NEW CAREER
-    # ========================================================
 
     else:
 
@@ -1071,10 +1060,6 @@ def analyze_resume():
 
     try:
 
-        # ----------------------------------------------------
-        # USERNAME
-        # ----------------------------------------------------
-
         username = str(
             request.form.get(
                 "username",
@@ -1093,10 +1078,6 @@ def analyze_resume():
                     "Username is required."
 
             }), 400
-
-        # ----------------------------------------------------
-        # FILE CHECK
-        # ----------------------------------------------------
 
         if "resume" not in request.files:
 
@@ -1126,10 +1107,6 @@ def analyze_resume():
 
             }), 400
 
-        # ----------------------------------------------------
-        # FILE EXTENSION
-        # ----------------------------------------------------
-
         original_filename = (
             resume_file.filename
         )
@@ -1155,10 +1132,6 @@ def analyze_resume():
 
             }), 400
 
-        # ----------------------------------------------------
-        # SECURE FILE NAME
-        # ----------------------------------------------------
-
         safe_filename = secure_filename(
             original_filename
         )
@@ -1174,10 +1147,6 @@ def analyze_resume():
                     "Invalid resume filename."
 
             }), 400
-
-        # ----------------------------------------------------
-        # UNIQUE FILE NAME
-        # ----------------------------------------------------
 
         timestamp = datetime.now().strftime(
             "%Y%m%d_%H%M%S_%f"
@@ -1203,23 +1172,13 @@ def analyze_resume():
             final_filename
         )
 
-        # ----------------------------------------------------
-        # SAVE FILE
-        # ----------------------------------------------------
-
         resume_file.save(
             file_path
         )
 
-        # ----------------------------------------------------
-        # ANALYZE RESUME
-        # ----------------------------------------------------
-
-        analysis = resume_service.analyze_resume(file_path)
-
-        # ----------------------------------------------------
-        # SAVE ANALYSIS
-        # ----------------------------------------------------
+        analysis = resume_service.analyze_resume(
+            file_path
+        )
 
         resume_manager.save_analysis(
 
@@ -1264,21 +1223,31 @@ def analyze_resume():
 
         )
 
-        # ----------------------------------------------------
-        # RESPONSE
-        # ----------------------------------------------------
+        analysis_payload = dict(
+            analysis
+        )
 
-        # Return the complete analyzer payload so the frontend can
-        # render all available resume intelligence data.
-        analysis_payload = dict(analysis)
-        analysis_payload["resume_file"] = final_filename
+        analysis_payload[
+            "resume_file"
+        ] = final_filename
 
         return jsonify({
-            "success": True,
-            "message": "Resume analyzed successfully.",
-            "username": username,
-            "resume_file": final_filename,
-            "analysis": analysis_payload
+
+            "success":
+                True,
+
+            "message":
+                "Resume analyzed successfully.",
+
+            "username":
+                username,
+
+            "resume_file":
+                final_filename,
+
+            "analysis":
+                analysis_payload
+
         }), 200
 
     except Exception as e:
@@ -1294,6 +1263,264 @@ def analyze_resume():
 
             "message":
                 f"Resume analysis failed: {str(e)}"
+
+        }), 500
+
+
+# ============================================================
+# DAY 31
+# ATS JOB MATCHING ENGINE
+# ============================================================
+
+def extract_resume_text_for_job_match(file_path):
+    """Extract resume text for the ATS job matching engine."""
+
+    extension = os.path.splitext(file_path)[1].lower()
+
+    if extension == ".pdf":
+        try:
+            import PyPDF2
+        except ImportError as error:
+            raise ImportError(
+                "PyPDF2 is required for PDF job matching. Run: pip install PyPDF2"
+            ) from error
+
+        text_parts = []
+
+        with open(file_path, "rb") as file:
+            reader = PyPDF2.PdfReader(file)
+
+            for page in reader.pages:
+                try:
+                    text_parts.append(page.extract_text() or "")
+                except Exception:
+                    continue
+
+        return "\n".join(text_parts).strip()
+
+    if extension == ".docx":
+        try:
+            from docx import Document
+        except ImportError as error:
+            raise ImportError(
+                "python-docx is required for DOCX job matching. Run: pip install python-docx"
+            ) from error
+
+        document = Document(file_path)
+        parts = []
+
+        for paragraph in document.paragraphs:
+            if paragraph.text.strip():
+                parts.append(paragraph.text.strip())
+
+        for table in document.tables:
+            for row in table.rows:
+                values = [
+                    cell.text.strip()
+                    for cell in row.cells
+                    if cell.text.strip()
+                ]
+                if values:
+                    parts.append(" ".join(values))
+
+        return "\n".join(parts).strip()
+
+    if extension == ".txt":
+        try:
+            with open(file_path, "r", encoding="utf-8") as file:
+                return file.read().strip()
+        except UnicodeDecodeError:
+            with open(file_path, "r", encoding="latin-1") as file:
+                return file.read().strip()
+
+    raise ValueError(
+        "Unsupported resume format. Use PDF, DOCX or TXT."
+    )
+
+
+@app.route(
+    "/api/job-match",
+    methods=["POST"]
+)
+def job_match():
+
+    try:
+
+        data = request.get_json(
+            silent=True
+        ) or {}
+
+        username = str(
+            data.get(
+                "username",
+                ""
+            )
+        ).strip()
+
+        job_description = str(
+            data.get(
+                "job_description",
+                ""
+            )
+        ).strip()
+
+        resume_text = str(
+            data.get(
+                "resume_text",
+                ""
+            )
+        ).strip()
+
+        resume_file = str(
+            data.get(
+                "resume_file",
+                ""
+            )
+        ).strip()
+
+        # --------------------------------------------------------
+        # VALIDATION
+        # --------------------------------------------------------
+
+        if not job_description:
+
+            return jsonify({
+
+                "success": False,
+
+                "message":
+                    "Job description is required."
+
+            }), 400
+
+        if len(job_description) < 30:
+
+            return jsonify({
+
+                "success": False,
+
+                "message":
+                    "Job description is too short. Paste the complete job description."
+
+            }), 400
+
+        # --------------------------------------------------------
+        # RESUME TEXT SOURCE
+        # --------------------------------------------------------
+        # Preferred browser flow: the frontend sends the filename
+        # returned by /api/resume/analyze. The server extracts the
+        # original resume text locally, so the browser never needs
+        # to expose the full resume text.
+
+        if not resume_text and resume_file:
+
+            safe_resume_file = os.path.basename(
+                resume_file
+            )
+
+            file_path = os.path.join(
+                RESUME_UPLOAD_DIR,
+                safe_resume_file
+            )
+
+            if not os.path.isfile(file_path):
+
+                return jsonify({
+
+                    "success": False,
+
+                    "message":
+                        "The analyzed resume file could not be found. Please analyze the resume again."
+
+                }), 404
+
+            resume_text = extract_resume_text_for_job_match(
+                file_path
+            )
+
+        if not resume_text:
+
+            return jsonify({
+
+                "success": False,
+
+                "message":
+                    "No resume text available. Analyze a resume first."
+
+            }), 400
+
+        # --------------------------------------------------------
+        # MATCH ENGINE
+        # --------------------------------------------------------
+
+        result = match_resume_to_job(
+            resume_text,
+            job_description
+        )
+
+        # --------------------------------------------------------
+        # RESPONSE
+        # --------------------------------------------------------
+
+        return jsonify({
+
+            "success": True,
+
+            "username": username,
+
+            "resume_file": resume_file,
+
+            "job_description_length": len(job_description),
+
+            "job_match": result.get(
+                "job_match",
+                {}
+            ),
+
+            "scores": result.get(
+                "scores",
+                {}
+            ),
+
+            "skills": result.get(
+                "skills",
+                {}
+            ),
+
+            "keywords": result.get(
+                "keywords",
+                {}
+            ),
+
+            "experience": result.get(
+                "experience",
+                {}
+            ),
+
+            "analysis": result.get(
+                "analysis",
+                {}
+            ),
+
+            "summary": result.get(
+                "summary",
+                {}
+            )
+
+        }), 200
+
+    except Exception as e:
+
+        print(
+            f"Job matching error: {e}"
+        )
+
+        return jsonify({
+
+            "success": False,
+
+            "message":
+                f"Job matching failed: {str(e)}"
 
         }), 500
 
@@ -1491,6 +1718,8 @@ def page_not_found(error):
 
             "/api/resume/analyze",
 
+            "/api/job-match",
+
             "/api/resume/history/<username>",
 
             "/api/resume/latest/<username>"
@@ -1515,7 +1744,7 @@ def internal_server_error(error):
         "message":
             "Internal server error."
 
-    }), 500
+    })
 
 
 # ============================================================
@@ -1552,6 +1781,16 @@ if __name__ == "__main__":
 
     print(
         "Maximum Upload: 10 MB"
+    )
+
+    print("=" * 50)
+
+    print(
+        "ATS Job Matching: ENABLED"
+    )
+
+    print(
+        "Endpoint: POST /api/job-match"
     )
 
     print("=" * 50)
