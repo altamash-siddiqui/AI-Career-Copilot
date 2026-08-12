@@ -9,6 +9,7 @@ from datetime import datetime
 
 from services.resume_service import resume_service
 from resume_manager import ResumeManager
+from resume_optimizer import ResumeOptimizer
 
 # ============================================================
 # DAY 31 - ATS JOB MATCHER
@@ -65,6 +66,17 @@ os.makedirs(
     exist_ok=True
 )
 
+OPTIMIZED_RESUME_DIR = os.path.join(
+    RESUME_UPLOAD_DIR,
+    "optimized"
+)
+os.makedirs(
+    OPTIMIZED_RESUME_DIR,
+    exist_ok=True
+)
+
+resume_optimizer = ResumeOptimizer()
+
 
 ALLOWED_RESUME_EXTENSIONS = {
     ".pdf",
@@ -102,7 +114,11 @@ ROADMAPS = {
 
     "data science": [
         "Learn Python",
+
+
         "Learn Pandas",
+
+
         "Learn SQL"
     ]
 }
@@ -169,7 +185,7 @@ def status():
         "success": True,
 
         "message":
-            "AI Career Copilot API is running 🚀",
+            "AI Career Copilot API is running ■",
 
         "system":
             "online"
@@ -206,8 +222,8 @@ def register():
     ).strip()
 
     if not username or not password:
-
         return jsonify({
+
 
             "success": False,
 
@@ -312,6 +328,7 @@ def login():
     if not username or not password:
 
         return jsonify({
+
 
             "success": False,
 
@@ -418,6 +435,7 @@ def dashboard(username):
             )
         )
 
+
         if (
             str(record_user).lower()
             ==
@@ -498,9 +516,9 @@ def dashboard(username):
         progress = int(
 
             (
-                completed_count
-                /
-                total_steps
+                    completed_count
+                    /
+                    total_steps
             )
             *
             100
@@ -522,7 +540,10 @@ def dashboard(username):
             True,
 
         "username":
+
+
             username,
+
 
         "has_career":
             True,
@@ -628,6 +649,8 @@ def select_career():
     ) or {}
 
     username = str(
+
+
         data.get(
             "username",
             ""
@@ -732,7 +755,10 @@ def select_career():
                 username,
 
             "career":
+
+
                 career,
+
 
             "user":
                 username,
@@ -838,6 +864,8 @@ def complete_step():
             "user",
             record.get(
                 "name",
+
+
                 ""
             )
         )
@@ -942,7 +970,11 @@ def complete_step():
             len(completed_steps)
             /
             total_steps
+
+
         )
+
+
         *
         100
 
@@ -1151,8 +1183,9 @@ def analyze_resume():
         timestamp = datetime.now().strftime(
             "%Y%m%d_%H%M%S_%f"
         )
-
         filename_without_extension = (
+
+
             os.path.splitext(
                 safe_filename
             )[0]
@@ -1258,6 +1291,7 @@ def analyze_resume():
 
         return jsonify({
 
+
             "success":
                 False,
 
@@ -1362,7 +1396,10 @@ def job_match():
                 "job_description",
                 ""
             )
+
+
         ).strip()
+
 
         resume_text = str(
             data.get(
@@ -1468,6 +1505,7 @@ def job_match():
 
             "username": username,
 
+
             "resume_file": resume_file,
 
             "job_description_length": len(job_description),
@@ -1526,6 +1564,304 @@ def job_match():
 
 
 # ============================================================
+# DAY 32 - RESUME OPTIMIZATION
+# ============================================================
+
+@app.route(
+    "/api/resume/optimize",
+    methods=["POST"]
+)
+def optimize_resume():
+
+    try:
+
+        username = str(
+            request.form.get(
+                "username",
+                "user"
+            )
+        ).strip() or "user"
+
+        target_role = str(
+            request.form.get(
+                "target_role",
+                ""
+            )
+        ).strip()
+
+        job_description = str(
+            request.form.get(
+                "job_description",
+                ""
+            )
+        ).strip()
+
+        resume_file = request.files.get(
+            "resume"
+        )
+
+        # --------------------------------------------------------
+        # VALIDATION
+        # --------------------------------------------------------
+
+        if not resume_file:
+            return jsonify({
+                "success": False,
+                "message": "Resume file is required."
+            }), 400
+
+        original_filename = secure_filename(
+            resume_file.filename or "resume"
+        )
+
+        if not original_filename:
+            original_filename = "resume"
+
+        extension = os.path.splitext(
+            original_filename
+        )[1].lower()
+
+        if extension not in ALLOWED_RESUME_EXTENSIONS:
+            return jsonify({
+                "success": False,
+                "message":
+                    "Unsupported resume format. "
+                    "Use PDF, DOCX or TXT."
+            }), 400
+
+        # --------------------------------------------------------
+        # SAVE ORIGINAL RESUME
+        # --------------------------------------------------------
+
+        timestamp = datetime.now().strftime(
+            "%Y%m%d_%H%M%S_%f"
+        )
+
+        saved_name = (
+            f"{username}_{timestamp}_{original_filename}"
+        )
+
+        original_path = os.path.join(
+            RESUME_UPLOAD_DIR,
+            saved_name
+        )
+
+        resume_file.save(
+            original_path
+        )
+
+        # --------------------------------------------------------
+        # ANALYZE RESUME
+        # --------------------------------------------------------
+        # ResumeOptimizer needs the same analysis data
+        # that the normal /api/resume/analyze endpoint produces.
+
+        analysis = resume_service.analyze_resume(
+            original_path
+        )
+
+        if not isinstance(
+            analysis,
+            dict
+        ):
+            analysis = {}
+
+        # --------------------------------------------------------
+        # DETECT TARGET ROLE IF FRONTEND DID NOT SEND ONE
+        # --------------------------------------------------------
+
+        if not target_role:
+
+            target_role = (
+                resume_optimizer.detect_target_role(
+                    analysis=analysis,
+                    job_description=job_description
+                )
+            )
+
+        # --------------------------------------------------------
+        # OPTIMIZE
+        # --------------------------------------------------------
+
+        result = resume_optimizer.optimize(
+            original_text=(
+                resume_service.analyzer.extract_text(
+                    original_path
+                )
+            ),
+            analysis=analysis,
+            target_role=target_role,
+            job_description=job_description
+        )
+
+        if not result.get("success"):
+            return jsonify(result), 400
+
+        # --------------------------------------------------------
+        # ADD FILE / USER INFORMATION
+        # --------------------------------------------------------
+
+        result["username"] = username
+
+        result["original_filename"] = (
+            original_filename
+        )
+
+        result["stored_original_filename"] = (
+            saved_name
+        )
+
+        result["resume_file"] = saved_name
+
+        result["analysis"] = analysis
+
+        # --------------------------------------------------------
+        # RESPONSE
+        # --------------------------------------------------------
+
+        return jsonify(
+            result
+        ), 200
+
+    except Exception as error:
+
+        print(
+            f"Resume optimization error: {error}"
+        )
+
+        return jsonify({
+
+            "success": False,
+
+            "message":
+                f"Resume optimization failed: {error}"
+
+        }), 500
+        
+# ============================================================
+# DAY 32 - APPROVE OPTIMIZED RESUME
+# ============================================================
+
+@app.route(
+    "/api/resume/optimize/approve",
+    methods=["POST"]
+)
+def approve_optimized_resume():
+
+    try:
+
+        data = request.get_json(
+            silent=True
+        ) or {}
+
+        # --------------------------------------------------------
+        # GET DATA
+        # --------------------------------------------------------
+
+        username = str(
+            data.get(
+                "username",
+                "user"
+            )
+        ).strip() or "user"
+
+        optimized_text = str(
+            data.get(
+                "optimized_text",
+                ""
+            )
+        ).strip()
+
+        original_filename = str(
+            data.get(
+                "original_filename",
+                "resume.txt"
+            )
+        ).strip() or "resume.txt"
+
+        # --------------------------------------------------------
+        # VALIDATION
+        # --------------------------------------------------------
+
+        if not optimized_text:
+
+            return jsonify({
+
+                "success": False,
+
+                "message":
+                    "Optimized resume text is required."
+
+            }), 400
+
+        # --------------------------------------------------------
+        # SAVE APPROVED COPY
+        # --------------------------------------------------------
+
+        saved_filename = (
+            resume_optimizer.save_approved_copy(
+
+                optimized_text=optimized_text,
+
+                original_filename=original_filename,
+
+                username=username,
+
+                output_directory=OPTIMIZED_RESUME_DIR
+
+            )
+        )
+
+        optimized_path = os.path.join(
+            OPTIMIZED_RESUME_DIR,
+            saved_filename
+        )
+
+        # --------------------------------------------------------
+        # RESPONSE
+        # --------------------------------------------------------
+
+        return jsonify({
+
+            "success": True,
+
+            "message":
+                "Optimized resume approved and saved successfully.",
+
+            "username":
+                username,
+
+            "original_filename":
+                original_filename,
+
+            "optimized_filename":
+                saved_filename,
+
+            "optimized_resume":
+                optimized_text,
+
+            "file_path":
+                optimized_path
+
+        }), 200
+
+    except Exception as error:
+
+        print(
+            f"Resume approval error: {error}"
+        )
+
+        return jsonify({
+
+            "success": False,
+
+            "message":
+                f"Unable to save approved resume: {str(error)}"
+
+        }), 500
+
+
+# ============================================================
 # RESUME HISTORY
 # ============================================================
 
@@ -1572,6 +1908,7 @@ def resume_history(username):
                 history
 
         }), 200
+
 
     except Exception as e:
 
@@ -1676,8 +2013,9 @@ def file_too_large(error):
 
         "success":
             False,
-
         "message":
+
+
             "Resume file is too large. Maximum allowed size is 10 MB."
 
     }), 413
@@ -1717,6 +2055,8 @@ def page_not_found(error):
             "/api/history/<username>",
 
             "/api/resume/analyze",
+            "/api/resume/optimize",
+            "/api/resume/optimize/approve",
 
             "/api/job-match",
 
@@ -1756,7 +2096,7 @@ if __name__ == "__main__":
     print("=" * 50)
 
     print(
-        "       AI CAREER COPILOT API"
+        "         AI CAREER COPILOT API"
     )
 
     print("=" * 50)
@@ -1766,7 +2106,7 @@ if __name__ == "__main__":
     )
 
     print(
-        "Status: ONLINE 🚀"
+        "Status: ONLINE ■"
     )
 
     print("=" * 50)
@@ -1782,6 +2122,7 @@ if __name__ == "__main__":
     print(
         "Maximum Upload: 10 MB"
     )
+
 
     print("=" * 50)
 
