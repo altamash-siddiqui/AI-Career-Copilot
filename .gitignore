@@ -26,3 +26,5 @@ uploads/
 *.pyc
 __pycache__/
 .env
+# Career Intelligence local data
+career_intelligence.json

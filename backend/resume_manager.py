@@ -33,7 +33,6 @@ class ResumeManager:
             if not os.path.exists(
                 self.resume_data_file
             ):
-
                 return []
 
             with open(
@@ -45,7 +44,6 @@ class ResumeManager:
                 data = json.load(file)
 
             if not isinstance(data, list):
-
                 return []
 
             return data
@@ -62,10 +60,7 @@ class ResumeManager:
     # SAVE DATA
     # ============================================================
 
-    def save_resume_data(
-        self,
-        data
-    ):
+    def save_resume_data(self, data):
 
         try:
 
@@ -78,7 +73,8 @@ class ResumeManager:
                 json.dump(
                     data,
                     file,
-                    indent=4
+                    indent=4,
+                    ensure_ascii=False
                 )
 
             return True
@@ -92,48 +88,185 @@ class ResumeManager:
             return False
 
     # ============================================================
-    # SAVE RESUME ANALYSIS
+    # SAVE COMPLETE RESUME ANALYSIS
     # ============================================================
 
     def save_analysis(
         self,
         username,
         resume_name,
-        detected_name,
-        email,
-        phone,
-        skills,
-        sections,
-        strength_score,
-        ats_score
+        detected_name="",
+        email="",
+        phone="",
+        skills=None,
+        sections=None,
+        strength_score=0,
+        ats_score=0,
+        analysis=None
     ):
 
         data = self.load_resume_data()
 
-        record = {
+        if not isinstance(
+            data,
+            list
+        ):
+            data = []
 
-            "user": username,
+        # --------------------------------------------------------
+        # COMPLETE ANALYSIS
+        # --------------------------------------------------------
 
-            "resume_file": resume_name,
+        if isinstance(
+            analysis,
+            dict
+        ):
 
-            "name": detected_name,
-
-            "email": email,
-
-            "phone": phone,
-
-            "skills": skills,
-
-            "sections": sections,
-
-            "resume_strength_score": strength_score,
-
-            "ats_score": ats_score,
-
-            "timestamp": datetime.now().strftime(
-                "%Y-%m-%d %H:%M:%S"
+            record = dict(
+                analysis
             )
-        }
+
+        else:
+
+            record = {}
+
+        # --------------------------------------------------------
+        # FORCE SYSTEM FIELDS
+        # --------------------------------------------------------
+
+        record["user"] = username
+
+        record["resume_file"] = resume_name
+
+        record["name"] = (
+            detected_name
+            or
+            record.get(
+                "name",
+                ""
+            )
+        )
+
+        record["email"] = (
+            email
+            or
+            record.get(
+                "email",
+                ""
+            )
+        )
+
+        record["phone"] = (
+            phone
+            or
+            record.get(
+                "phone",
+                ""
+            )
+        )
+
+        record["skills"] = (
+            skills
+            if isinstance(
+                skills,
+                list
+            )
+            else record.get(
+                "skills",
+                []
+            )
+        )
+
+        record["sections"] = (
+            sections
+            if isinstance(
+                sections,
+                list
+            )
+            else record.get(
+                "sections",
+                []
+            )
+        )
+
+        record["resume_strength_score"] = (
+            strength_score
+            if strength_score is not None
+            else record.get(
+                "resume_strength_score",
+                0
+            )
+        )
+
+        record["ats_score"] = (
+            ats_score
+            if ats_score is not None
+            else record.get(
+                "ats_score",
+                0
+            )
+        )
+
+        # --------------------------------------------------------
+        # IMPORTANT CAREER INTELLIGENCE FIELDS
+        # --------------------------------------------------------
+
+        record["content_quality"] = record.get(
+            "content_quality",
+            0
+        )
+
+        record["achievement_strength"] = record.get(
+            "achievement_strength",
+            0
+        )
+
+        record["summary"] = record.get(
+            "summary",
+            ""
+        )
+
+        record["profile"] = record.get(
+            "profile",
+            ""
+        )
+
+        record["objective"] = record.get(
+            "objective",
+            ""
+        )
+
+        record["experience"] = record.get(
+            "experience",
+            ""
+        )
+
+        record["education"] = record.get(
+            "education",
+            ""
+        )
+
+        record["linkedin"] = record.get(
+            "linkedin",
+            ""
+        )
+
+        record["github"] = record.get(
+            "github",
+            ""
+        )
+
+        # --------------------------------------------------------
+        # TIMESTAMP
+        # --------------------------------------------------------
+
+        record["timestamp"] = datetime.now().strftime(
+            "%Y-%m-%d %H:%M:%S"
+        )
+
+        # --------------------------------------------------------
+        # SAVE
+        # --------------------------------------------------------
 
         data.append(
             record
@@ -144,7 +277,7 @@ class ResumeManager:
         ):
 
             print(
-                "\n✅ Resume analysis saved successfully!"
+                "\n✅ Complete resume analysis saved successfully!"
             )
 
             return True
@@ -152,7 +285,7 @@ class ResumeManager:
         return False
 
     # ============================================================
-    # GET CURRENT USER'S RESUME HISTORY
+    # GET USER RESUME HISTORY
     # ============================================================
 
     def get_user_resume_history(
@@ -166,10 +299,17 @@ class ResumeManager:
 
         for record in data:
 
+            record_user = str(
+                record.get(
+                    "user",
+                    ""
+                )
+            ).strip()
+
             if (
-                record.get("user", "").lower()
+                record_user.lower()
                 ==
-                username.lower()
+                str(username).strip().lower()
             ):
 
                 user_history.append(
@@ -254,6 +394,16 @@ class ResumeManager:
             )
 
             print(
+                f"Content Quality  : "
+                f"{record.get('content_quality', 0)}/100"
+            )
+
+            print(
+                f"Achievement      : "
+                f"{record.get('achievement_strength', 0)}/100"
+            )
+
+            print(
                 f"Analyzed On      : "
                 f"{record.get('timestamp', '')}"
             )
@@ -278,7 +428,6 @@ class ResumeManager:
         )
 
         if not history:
-
             return None
 
         return history[-1]

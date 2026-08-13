@@ -12,6 +12,16 @@ from resume_manager import ResumeManager
 from resume_optimizer import ResumeOptimizer
 
 # ============================================================
+# DAY 33 - CAREER INTELLIGENCE
+# ============================================================
+from career_intelligence import (
+    register_day33_routes,
+    build_career_intelligence,
+    load_saved_data,
+    save_saved_data
+)
+
+# ============================================================
 # DAY 31 - ATS JOB MATCHER
 # ============================================================
 
@@ -1256,6 +1266,55 @@ def analyze_resume():
 
         )
 
+        # ========================================================
+        # AUTO-SYNC CAREER INTELLIGENCE
+        # ========================================================
+        # Uses the exact same analysis that was just saved.
+        # A new resume analysis therefore automatically refreshes
+        # Career Intelligence for the same logged-in user.
+        career_intelligence_data = None
+        career_intelligence_error = None
+
+        try:
+
+            career_intelligence_data = (
+                build_career_intelligence(
+                    username,
+                    resume_manager
+                )
+            )
+
+            if career_intelligence_data is not None:
+
+                saved_intelligence = load_saved_data()
+
+                if not isinstance(
+                    saved_intelligence,
+                    dict
+                ):
+                    saved_intelligence = {}
+
+                saved_intelligence[
+                    username.lower()
+                ] = career_intelligence_data
+
+                save_saved_data(
+                    saved_intelligence
+                )
+
+        except Exception as intelligence_error:
+
+            # Resume analysis should still succeed if Career
+            # Intelligence calculation encounters a separate issue.
+            career_intelligence_error = str(
+                intelligence_error
+            )
+
+            print(
+                "Career Intelligence auto-sync error: "
+                f"{career_intelligence_error}"
+            )
+
         analysis_payload = dict(
             analysis
         )
@@ -1279,7 +1338,16 @@ def analyze_resume():
                 final_filename,
 
             "analysis":
-                analysis_payload
+                analysis_payload,
+
+            "career_intelligence":
+                career_intelligence_data,
+
+            "career_intelligence_updated":
+                career_intelligence_data is not None,
+
+            "career_intelligence_error":
+                career_intelligence_error
 
         }), 200
 
@@ -2003,6 +2071,17 @@ def latest_resume(username):
 
 
 # ============================================================
+# DAY 33 - CAREER INTELLIGENCE ROUTES
+# ============================================================
+# Uses the same ResumeManager instance as the existing resume
+# analysis endpoints, so Day 33 reads the latest resume analysis.
+register_day33_routes(
+    app,
+    resume_manager
+)
+
+
+# ============================================================
 # FILE TOO LARGE
 # ============================================================
 
@@ -2062,7 +2141,13 @@ def page_not_found(error):
 
             "/api/resume/history/<username>",
 
-            "/api/resume/latest/<username>"
+            "/api/resume/latest/<username>",
+
+            "/api/career-intelligence/<username>",
+
+            "/api/career-intelligence/saved/<username>",
+
+            "/api/career-intelligence/careers"
 
         ]
 
