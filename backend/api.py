@@ -6,6 +6,9 @@ import json
 import os
 
 from datetime import datetime
+from urllib.parse import urlencode
+from urllib.request import Request, urlopen
+from urllib.error import HTTPError, URLError
 
 from services.resume_service import resume_service
 from resume_manager import ResumeManager
@@ -14,12 +17,7 @@ from resume_optimizer import ResumeOptimizer
 # ============================================================
 # DAY 33 - CAREER INTELLIGENCE
 # ============================================================
-from career_intelligence import (
-    register_day33_routes,
-    build_career_intelligence,
-    load_saved_data,
-    save_saved_data
-)
+from career_intelligence import register_day33_routes
 
 # ============================================================
 # DAY 31 - ATS JOB MATCHER
@@ -1266,55 +1264,6 @@ def analyze_resume():
 
         )
 
-        # ========================================================
-        # AUTO-SYNC CAREER INTELLIGENCE
-        # ========================================================
-        # Uses the exact same analysis that was just saved.
-        # A new resume analysis therefore automatically refreshes
-        # Career Intelligence for the same logged-in user.
-        career_intelligence_data = None
-        career_intelligence_error = None
-
-        try:
-
-            career_intelligence_data = (
-                build_career_intelligence(
-                    username,
-                    resume_manager
-                )
-            )
-
-            if career_intelligence_data is not None:
-
-                saved_intelligence = load_saved_data()
-
-                if not isinstance(
-                    saved_intelligence,
-                    dict
-                ):
-                    saved_intelligence = {}
-
-                saved_intelligence[
-                    username.lower()
-                ] = career_intelligence_data
-
-                save_saved_data(
-                    saved_intelligence
-                )
-
-        except Exception as intelligence_error:
-
-            # Resume analysis should still succeed if Career
-            # Intelligence calculation encounters a separate issue.
-            career_intelligence_error = str(
-                intelligence_error
-            )
-
-            print(
-                "Career Intelligence auto-sync error: "
-                f"{career_intelligence_error}"
-            )
-
         analysis_payload = dict(
             analysis
         )
@@ -1338,16 +1287,7 @@ def analyze_resume():
                 final_filename,
 
             "analysis":
-                analysis_payload,
-
-            "career_intelligence":
-                career_intelligence_data,
-
-            "career_intelligence_updated":
-                career_intelligence_data is not None,
-
-            "career_intelligence_error":
-                career_intelligence_error
+                analysis_payload
 
         }), 200
 
@@ -2081,6 +2021,147 @@ register_day33_routes(
 )
 
 
+
+
+# ============================================================
+# DAY 34 - YOUTUBE STUDY MATERIAL
+# ============================================================
+
+YOUTUBE_API_KEY = os.getenv(
+    "YOUTUBE_API_KEY",
+    ""
+).strip()
+
+
+@app.route(
+    "/api/youtube/search",
+    methods=["GET"]
+)
+def youtube_search():
+
+    skill = str(
+        request.args.get(
+            "skill",
+            ""
+        )
+    ).strip()
+
+    if not skill:
+        return jsonify({
+            "success": False,
+            "message": "Skill is required."
+        }), 400
+
+    query = (
+        f"{skill} tutorial course for beginners"
+    )
+
+    # No API key: keep the product usable and return a safe YouTube search
+    # URL. The frontend opens this immediately, so users never get blocked.
+    if not YOUTUBE_API_KEY:
+        return jsonify({
+            "success": True,
+            "source": "youtube_search_fallback",
+            "video_url": (
+                "https://www.youtube.com/results?"
+                + urlencode({"search_query": query})
+            ),
+            "message": "YOUTUBE_API_KEY is not configured; using YouTube search."
+        }), 200
+
+    params = urlencode({
+        "part": "snippet",
+        "q": query,
+        "type": "video",
+        "maxResults": 1,
+        "safeSearch": "moderate",
+        "key": YOUTUBE_API_KEY
+    })
+
+    url = (
+        "https://www.googleapis.com/youtube/v3/search?"
+        + params
+    )
+
+    try:
+
+        req = Request(
+            url,
+            headers={
+                "Accept": "application/json",
+                "User-Agent": "AI-Career-Copilot/1.0"
+            }
+        )
+
+        with urlopen(
+            req,
+            timeout=8
+        ) as response:
+
+            payload = json.loads(
+                response.read().decode("utf-8")
+            )
+
+        items = payload.get(
+            "items",
+            []
+        )
+
+        if not items:
+            return jsonify({
+                "success": True,
+                "source": "youtube_api",
+                "video_url": (
+                    "https://www.youtube.com/results?"
+                    + urlencode({"search_query": query})
+                ),
+                "message": "No direct video result found; using YouTube search."
+            }), 200
+
+        first = items[0]
+        video_id = (
+            first.get("id", {})
+                .get("videoId", "")
+        )
+        snippet = first.get(
+            "snippet",
+            {}
+        )
+
+        if not video_id:
+            return jsonify({
+                "success": True,
+                "source": "youtube_api",
+                "video_url": (
+                    "https://www.youtube.com/results?"
+                    + urlencode({"search_query": query})
+                )
+            }), 200
+
+        return jsonify({
+            "success": True,
+            "source": "youtube_api",
+            "video_url":
+                f"https://www.youtube.com/watch?v={video_id}",
+            "video_id": video_id,
+            "title": snippet.get("title", ""),
+            "channel": snippet.get("channelTitle", "")
+        }), 200
+
+    except (HTTPError, URLError, TimeoutError, ValueError) as error:
+
+        return jsonify({
+            "success": True,
+            "source": "youtube_search_fallback",
+            "video_url": (
+                "https://www.youtube.com/results?"
+                + urlencode({"search_query": query})
+            ),
+            "message":
+                f"YouTube API unavailable; using search fallback: {str(error)}"
+        }), 200
+
+
 # ============================================================
 # FILE TOO LARGE
 # ============================================================
@@ -2147,7 +2228,9 @@ def page_not_found(error):
 
             "/api/career-intelligence/saved/<username>",
 
-            "/api/career-intelligence/careers"
+            "/api/career-intelligence/careers",
+
+            "/api/youtube/search?skill=<skill>"
 
         ]
 
@@ -2210,6 +2293,18 @@ if __name__ == "__main__":
 
 
     print("=" * 50)
+
+    print(
+        "YouTube Study Material: ENABLED"
+    )
+
+    print(
+        "Endpoint: GET /api/youtube/search?skill=<skill>"
+    )
+
+    print(
+        "YouTube API Key: " + ("CONFIGURED" if YOUTUBE_API_KEY else "OPTIONAL / FALLBACK")
+    )
 
     print(
         "ATS Job Matching: ENABLED"
