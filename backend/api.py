@@ -6,9 +6,11 @@ import json
 import os
 
 from datetime import datetime
+
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 from urllib.error import HTTPError, URLError
+
 
 from services.resume_service import resume_service
 from resume_manager import ResumeManager
@@ -24,6 +26,11 @@ from career_intelligence import register_day33_routes
 # ============================================================
 
 from job_matcher import match_resume_to_job
+
+# ============================================================
+# DAY 35-36 - INTERVIEW INTELLIGENCE
+# ============================================================
+from interview_engine import register_interview_routes
 
 
 # ============================================================
@@ -594,6 +601,59 @@ def dashboard(username):
             )
 
     })
+
+
+
+# ============================================================
+# DAY 37 - CAREER COMMAND CENTER OVERVIEW
+# ============================================================
+@app.route(
+    "/api/dashboard/overview/<username>",
+    methods=["GET"]
+)
+def dashboard_overview(username):
+    """Lightweight aggregate endpoint for the Day-37 dashboard."""
+    try:
+        username = str(username or "").strip()
+        if not username:
+            return jsonify({"success": False, "message": "Username is required."}), 400
+
+        latest_resume = resume_manager.get_latest_analysis(username)
+        resume = latest_resume if isinstance(latest_resume, dict) else None
+
+        careers = load_json(DATA_FILE, [])
+        current = None
+        if isinstance(careers, list):
+            for record in careers:
+                record_user = record.get("user", record.get("name", ""))
+                if str(record_user).lower() == username.lower():
+                    current = record
+
+        career_payload = None
+        if current:
+            career = str(current.get("career", "")).lower()
+            roadmap = ROADMAPS.get(career, [])
+            completed = current.get("completed_steps", [])
+            if not isinstance(completed, list):
+                completed = []
+            completed = [step for step in completed if step in roadmap]
+            progress = round((len(completed) / len(roadmap)) * 100) if roadmap else int(current.get("progress", 0) or 0)
+            career_payload = {
+                "career": career.title(),
+                "progress": progress,
+                "completed_steps": completed,
+                "total_steps": len(roadmap),
+            }
+
+        return jsonify({
+            "success": True,
+            "username": username,
+            "resume": resume,
+            "career": career_payload,
+        }), 200
+    except Exception as error:
+        print(f"Dashboard overview error: {error}")
+        return jsonify({"success": False, "message": "Unable to load career command center."}), 500
 
 
 # ============================================================
@@ -2011,19 +2071,6 @@ def latest_resume(username):
 
 
 # ============================================================
-# DAY 33 - CAREER INTELLIGENCE ROUTES
-# ============================================================
-# Uses the same ResumeManager instance as the existing resume
-# analysis endpoints, so Day 33 reads the latest resume analysis.
-register_day33_routes(
-    app,
-    resume_manager
-)
-
-
-
-
-# ============================================================
 # DAY 34 - YOUTUBE STUDY MATERIAL
 # ============================================================
 
@@ -2056,26 +2103,43 @@ def youtube_search():
         f"{skill} tutorial course for beginners"
     )
 
-    # No API key: keep the product usable and return a safe YouTube search
-    # URL. The frontend opens this immediately, so users never get blocked.
+    # No key: return a reliable YouTube search URL.
     if not YOUTUBE_API_KEY:
+
         return jsonify({
             "success": True,
             "source": "youtube_search_fallback",
             "video_url": (
                 "https://www.youtube.com/results?"
-                + urlencode({"search_query": query})
+                + urlencode({
+                    "search_query": query
+                })
             ),
-            "message": "YOUTUBE_API_KEY is not configured; using YouTube search."
+            "message":
+                "YOUTUBE_API_KEY is not configured; "
+                "using YouTube search."
         }), 200
 
     params = urlencode({
-        "part": "snippet",
-        "q": query,
-        "type": "video",
-        "maxResults": 1,
-        "safeSearch": "moderate",
-        "key": YOUTUBE_API_KEY
+
+        "part":
+            "snippet",
+
+        "q":
+            query,
+
+        "type":
+            "video",
+
+        "maxResults":
+            1,
+
+        "safeSearch":
+            "moderate",
+
+        "key":
+            YOUTUBE_API_KEY
+
     })
 
     url = (
@@ -2088,8 +2152,11 @@ def youtube_search():
         req = Request(
             url,
             headers={
-                "Accept": "application/json",
-                "User-Agent": "AI-Career-Copilot/1.0"
+                "Accept":
+                    "application/json",
+
+                "User-Agent":
+                    "AI-Career-Copilot/1.0"
             }
         )
 
@@ -2099,7 +2166,9 @@ def youtube_search():
         ) as response:
 
             payload = json.loads(
-                response.read().decode("utf-8")
+                response.read().decode(
+                    "utf-8"
+                )
             )
 
         items = payload.get(
@@ -2108,58 +2177,143 @@ def youtube_search():
         )
 
         if not items:
+
             return jsonify({
-                "success": True,
-                "source": "youtube_api",
-                "video_url": (
-                    "https://www.youtube.com/results?"
-                    + urlencode({"search_query": query})
-                ),
-                "message": "No direct video result found; using YouTube search."
+                "success":
+                    True,
+
+                "source":
+                    "youtube_api",
+
+                "video_url":
+                    (
+                        "https://www.youtube.com/results?"
+                        + urlencode({
+                            "search_query":
+                                query
+                        })
+                    ),
+
+                "message":
+                    "No direct video result found; "
+                    "using YouTube search."
             }), 200
 
         first = items[0]
+
         video_id = (
-            first.get("id", {})
-                .get("videoId", "")
+            first.get(
+                "id",
+                {}
+            ).get(
+                "videoId",
+                ""
+            )
         )
+
         snippet = first.get(
             "snippet",
             {}
         )
 
         if not video_id:
+
             return jsonify({
-                "success": True,
-                "source": "youtube_api",
-                "video_url": (
-                    "https://www.youtube.com/results?"
-                    + urlencode({"search_query": query})
-                )
+                "success":
+                    True,
+
+                "source":
+                    "youtube_api",
+
+                "video_url":
+                    (
+                        "https://www.youtube.com/results?"
+                        + urlencode({
+                            "search_query":
+                                query
+                        })
+                    )
             }), 200
 
         return jsonify({
-            "success": True,
-            "source": "youtube_api",
+
+            "success":
+                True,
+
+            "source":
+                "youtube_api",
+
             "video_url":
                 f"https://www.youtube.com/watch?v={video_id}",
-            "video_id": video_id,
-            "title": snippet.get("title", ""),
-            "channel": snippet.get("channelTitle", "")
+
+            "video_id":
+                video_id,
+
+            "title":
+                snippet.get(
+                    "title",
+                    ""
+                ),
+
+            "channel":
+                snippet.get(
+                    "channelTitle",
+                    ""
+                )
+
         }), 200
 
-    except (HTTPError, URLError, TimeoutError, ValueError) as error:
+    except (
+        HTTPError,
+        URLError,
+        TimeoutError,
+        ValueError
+    ) as error:
+
+        print(
+            f"YouTube API error: {error}"
+        )
 
         return jsonify({
-            "success": True,
-            "source": "youtube_search_fallback",
-            "video_url": (
-                "https://www.youtube.com/results?"
-                + urlencode({"search_query": query})
-            ),
+
+            "success":
+                True,
+
+            "source":
+                "youtube_search_fallback",
+
+            "video_url":
+                (
+                    "https://www.youtube.com/results?"
+                    + urlencode({
+                        "search_query":
+                            query
+                    })
+                ),
+
             "message":
-                f"YouTube API unavailable; using search fallback: {str(error)}"
+                "YouTube API request failed; "
+                "using YouTube search."
         }), 200
+
+
+# ============================================================
+# DAY 33 - CAREER INTELLIGENCE ROUTES
+# ============================================================
+# Uses the same ResumeManager instance as the existing resume
+# analysis endpoints, so Day 33 reads the latest resume analysis.
+register_day33_routes(
+    app,
+    resume_manager
+)
+
+# ============================================================
+# DAY 35-36 - INTERVIEW INTELLIGENCE ROUTES
+# ============================================================
+register_interview_routes(
+    app,
+    resume_manager
+)
 
 
 # ============================================================
@@ -2220,6 +2374,8 @@ def page_not_found(error):
 
             "/api/job-match",
 
+            "/api/youtube/search",
+
             "/api/resume/history/<username>",
 
             "/api/resume/latest/<username>",
@@ -2229,8 +2385,13 @@ def page_not_found(error):
             "/api/career-intelligence/saved/<username>",
 
             "/api/career-intelligence/careers",
-
-            "/api/youtube/search?skill=<skill>"
+            "/api/interview/start",
+            "/api/interview/evaluate",
+            "/api/interview/session/<session_id>",
+            "/api/interview/report/<session_id>",
+            "/api/interview/latest/<username>",
+            "/api/interview/transcribe",
+            "/api/interview/speak"
 
         ]
 
@@ -2295,6 +2456,16 @@ if __name__ == "__main__":
     print("=" * 50)
 
     print(
+        "ATS Job Matching: ENABLED"
+    )
+
+    print(
+        "Endpoint: POST /api/job-match"
+    )
+
+    print("=" * 50)
+
+    print(
         "YouTube Study Material: ENABLED"
     )
 
@@ -2303,15 +2474,43 @@ if __name__ == "__main__":
     )
 
     print(
-        "YouTube API Key: " + ("CONFIGURED" if YOUTUBE_API_KEY else "OPTIONAL / FALLBACK")
+        "YouTube API Key: "
+        + (
+            "CONFIGURED"
+            if YOUTUBE_API_KEY
+            else "OPTIONAL / FALLBACK"
+        )
+    )
+
+    print("=" * 50)
+
+    print(
+        "Interview Intelligence: ENABLED"
     )
 
     print(
-        "ATS Job Matching: ENABLED"
+        "Day 35-36 Combined Engine: ENABLED"
     )
 
     print(
-        "Endpoint: POST /api/job-match"
+        "Endpoint: POST /api/interview/start"
+    )
+
+    print(
+        "Endpoint: POST /api/interview/evaluate"
+    )
+
+    print(
+        "Endpoint: GET /api/interview/session/<session_id>"
+    )
+    print(
+        "Endpoint: GET /api/interview/report/<session_id>"
+    )
+    print(
+        "Endpoint: POST /api/interview/transcribe"
+    )
+    print(
+        "Endpoint: POST /api/interview/speak"
     )
 
     print("=" * 50)

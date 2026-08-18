@@ -2029,6 +2029,243 @@
         }
 
 
+
+        /* =========================================================
+           DAY 37 — CAREER COMMAND CENTER
+        ========================================================= */
+        .command-section {
+            margin-top: 34px;
+        }
+
+        .score-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+
+        .score-card,
+        .progress-panel,
+        .priority-panel,
+        .action-panel {
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            border-radius: 22px;
+            background: linear-gradient(145deg, rgba(20,12,48,.76), rgba(8,6,23,.72));
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            box-shadow: 0 24px 70px rgba(0,0,0,.22);
+        }
+
+        .score-card {
+            padding: 22px;
+            min-height: 148px;
+            transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease;
+        }
+
+        .score-card::after,
+        .progress-panel::after,
+        .priority-panel::after,
+        .action-panel::after {
+            content: '';
+            position: absolute;
+            width: 180px;
+            height: 180px;
+            right: -90px;
+            top: -100px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(72,234,255,.10), transparent 68%);
+            pointer-events: none;
+        }
+
+        .score-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(72,234,255,.24);
+            box-shadow: 0 30px 80px rgba(0,0,0,.30), 0 0 35px rgba(72,234,255,.06);
+        }
+
+        .score-label,
+        .command-label {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 8px;
+            letter-spacing: 2px;
+            color: #8e95b3;
+        }
+
+        .score-value {
+            margin-top: 12px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 38px;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .score-value span {
+            font-size: 13px;
+            color: #6f7695;
+            margin-left: 4px;
+        }
+
+        .score-status {
+            margin-top: 10px;
+            font-size: 10px;
+            color: #8e95b3;
+        }
+
+        .command-grid {
+            display: grid;
+            grid-template-columns: 1.15fr .85fr;
+            gap: 18px;
+            margin-top: 18px;
+        }
+
+        .progress-panel,
+        .priority-panel,
+        .action-panel {
+            padding: 24px;
+        }
+
+        .progress-head,
+        .priority-head,
+        .action-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .progress-percent {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 24px;
+            color: var(--cyan);
+        }
+
+        .progress-track {
+            height: 10px;
+            margin-top: 24px;
+            border-radius: 99px;
+            background: rgba(255,255,255,.06);
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,.05);
+        }
+
+        .progress-fill {
+            width: 0%;
+            height: 100%;
+            border-radius: inherit;
+            background: linear-gradient(90deg, #48eaff, #8f7bff, #b64dff);
+            box-shadow: 0 0 22px rgba(72,234,255,.28);
+            transition: width 1s cubic-bezier(.2,.8,.2,1);
+        }
+
+        .progress-meta {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-top: 12px;
+            color: #777e9f;
+            font-size: 10px;
+        }
+
+        .priority-list {
+            display: grid;
+            gap: 11px;
+            margin-top: 18px;
+        }
+
+        .priority-item {
+            display: grid;
+            grid-template-columns: 28px 1fr auto;
+            align-items: center;
+            gap: 10px;
+            padding: 11px 12px;
+            border: 1px solid rgba(255,255,255,.06);
+            border-radius: 13px;
+            background: rgba(255,255,255,.025);
+        }
+
+        .priority-number {
+            width: 24px;
+            height: 24px;
+            display: grid;
+            place-items: center;
+            border-radius: 8px;
+            background: rgba(72,234,255,.08);
+            color: var(--cyan);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 8px;
+        }
+
+        .priority-text {
+            font-size: 11px;
+            color: #dfe2f1;
+        }
+
+        .priority-badge {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 7px;
+            letter-spacing: 1px;
+            color: #8e95b3;
+        }
+
+        .action-panel {
+            margin-top: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 22px;
+        }
+
+        .action-copy {
+            max-width: 780px;
+        }
+
+        .action-title {
+            margin-top: 8px;
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .action-description {
+            margin-top: 7px;
+            color: var(--muted);
+            font-size: 11px;
+            line-height: 1.7;
+        }
+
+        .action-button {
+            flex: 0 0 auto;
+            border: 1px solid rgba(72,234,255,.32);
+            border-radius: 13px;
+            padding: 12px 16px;
+            background: rgba(72,234,255,.07);
+            color: #a9f5ff;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 8px;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: .25s ease;
+        }
+
+        .action-button:hover {
+            transform: translateY(-2px);
+            background: rgba(72,234,255,.13);
+            box-shadow: 0 0 28px rgba(72,234,255,.12);
+        }
+
+        @media (max-width: 1050px) {
+            .score-grid { grid-template-columns: repeat(2, 1fr); }
+            .command-grid { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 620px) {
+            .score-grid { grid-template-columns: 1fr; }
+            .action-panel { align-items: flex-start; flex-direction: column; }
+            .action-button { width: 100%; }
+            .priority-item { grid-template-columns: 26px 1fr; }
+            .priority-badge { display: none; }
+        }
+
         /* =========================================================
            FOOTER
         ========================================================= */
@@ -2764,54 +3001,134 @@
             </article>
 
 
-            <!-- MODULE 04 — CAREER INTELLIGENCE -->
+            <!-- MODULE 04 -->
 
             <article
                 class="module"
                 data-link="career-intelligence.html"
             >
 
-            <div class="module-number">
-                MODULE 04
-            </div>
-
-
-            <div class="module-icon">
-                🧬
-            </div>
-
-
-            <div class="module-title">
-                Career Intelligence
-            </div>
-
-
-            <div class="module-description">
-
-                Discover the career paths that best match your
-                profile, skills, experience and professional goals.
-
-            </div>
-
-
-            <div class="module-footer">
-
-                <span class="module-status">
-                    CAREER ANALYSIS
-                </span>
-
-
-                <div class="module-arrow">
-                    →
+                <div class="module-number">
+                    MODULE 04
                 </div>
 
-            </div>
 
-        </article>
+                <div class="module-icon">
+                    🧠
+                </div>
+
+
+                <div class="module-title">
+                    Skill Intelligence
+                </div>
+
+
+                <div class="module-description">
+
+                    Understand your current skills and identify
+                    the capabilities required for your target role.
+
+                </div>
+
+
+                <div class="module-footer">
+
+                    <span class="module-status">
+                        SKILL ANALYSIS
+                    </span>
+
+                    <div class="module-arrow">
+                        →
+                    </div>
+
+                </div>
+
+            </article>
 
 
         </section>
 
+
+
+        <!-- =====================================================
+             DAY 37 — CAREER SNAPSHOT
+        ===================================================== -->
+        <section class="command-section">
+            <div class="section-head">
+                <div>
+                    <div class="section-kicker">CAREER COMMAND CENTER</div>
+                    <div class="section-title">Your current career signal</div>
+                </div>
+                <div class="section-note" id="snapshotStatus">Syncing intelligence...</div>
+            </div>
+
+            <div class="score-grid">
+                <article class="score-card">
+                    <div class="score-label">RESUME SCORE</div>
+                    <div class="score-value" id="dashboardResumeScore">—<span>/100</span></div>
+                    <div class="score-status" id="dashboardResumeStatus">Awaiting resume analysis</div>
+                </article>
+                <article class="score-card">
+                    <div class="score-label">ATS SCORE</div>
+                    <div class="score-value" id="dashboardATSScore">—<span>/100</span></div>
+                    <div class="score-status" id="dashboardATSStatus">Awaiting ATS analysis</div>
+                </article>
+                <article class="score-card">
+                    <div class="score-label">CAREER MATCH</div>
+                    <div class="score-value" id="dashboardCareerScore">—<span>/100</span></div>
+                    <div class="score-status" id="dashboardCareerStatus">Run Career Intelligence</div>
+                </article>
+                <article class="score-card">
+                    <div class="score-label">INTERVIEW SCORE</div>
+                    <div class="score-value" id="dashboardInterviewScore">—<span>/100</span></div>
+                    <div class="score-status" id="dashboardInterviewStatus">Complete a mock interview</div>
+                </article>
+            </div>
+
+            <div class="command-grid">
+                <article class="progress-panel">
+                    <div class="progress-head">
+                        <div>
+                            <div class="command-label">CAREER PROGRESS</div>
+                            <div class="action-title" style="font-size:17px;">Roadmap completion</div>
+                        </div>
+                        <div class="progress-percent" id="dashboardRoadmapProgress">0%</div>
+                    </div>
+                    <div class="progress-track">
+                        <div class="progress-fill" id="dashboardRoadmapFill"></div>
+                    </div>
+                    <div class="progress-meta">
+                        <span id="dashboardRoadmapCareer">Career roadmap</span>
+                        <span id="dashboardRoadmapMeta">0 / 0 milestones</span>
+                    </div>
+                </article>
+
+                <article class="priority-panel">
+                    <div class="priority-head">
+                        <div>
+                            <div class="command-label">TODAY'S PRIORITIES</div>
+                            <div class="action-title" style="font-size:17px;">Recommended next moves</div>
+                        </div>
+                    </div>
+                    <div class="priority-list" id="dashboardPriorities">
+                        <div class="priority-item">
+                            <div class="priority-number">01</div>
+                            <div class="priority-text">Loading your career priorities...</div>
+                            <div class="priority-badge">SYNC</div>
+                        </div>
+                    </div>
+                </article>
+            </div>
+
+            <article class="action-panel">
+                <div class="action-copy">
+                    <div class="command-label">RECOMMENDED NEXT ACTION</div>
+                    <div class="action-title" id="dashboardNextAction">Build your career intelligence profile.</div>
+                    <div class="action-description" id="dashboardNextActionDescription">Analyze your resume and career profile to unlock the command center.</div>
+                </div>
+                <button class="action-button" id="dashboardNextActionButton">OPEN MODULE →</button>
+            </article>
+        </section>
 
         <!-- =====================================================
              RECENT ANALYSIS
@@ -3106,6 +3423,232 @@
             document.getElementById(
                 "recentData"
             );
+
+
+        /* =========================================================
+           DAY 37 — COMMAND CENTER ELEMENTS
+        ========================================================= */
+        const dashboardResumeScore = document.getElementById("dashboardResumeScore");
+        const dashboardATSScore = document.getElementById("dashboardATSScore");
+        const dashboardCareerScore = document.getElementById("dashboardCareerScore");
+        const dashboardInterviewScore = document.getElementById("dashboardInterviewScore");
+        const dashboardResumeStatus = document.getElementById("dashboardResumeStatus");
+        const dashboardATSStatus = document.getElementById("dashboardATSStatus");
+        const dashboardCareerStatus = document.getElementById("dashboardCareerStatus");
+        const dashboardInterviewStatus = document.getElementById("dashboardInterviewStatus");
+        const dashboardRoadmapProgress = document.getElementById("dashboardRoadmapProgress");
+        const dashboardRoadmapFill = document.getElementById("dashboardRoadmapFill");
+        const dashboardRoadmapCareer = document.getElementById("dashboardRoadmapCareer");
+        const dashboardRoadmapMeta = document.getElementById("dashboardRoadmapMeta");
+        const dashboardPriorities = document.getElementById("dashboardPriorities");
+        const dashboardNextAction = document.getElementById("dashboardNextAction");
+        const dashboardNextActionDescription = document.getElementById("dashboardNextActionDescription");
+        const dashboardNextActionButton = document.getElementById("dashboardNextActionButton");
+        const snapshotStatus = document.getElementById("snapshotStatus");
+
+        const dashboardState = {
+            resume: null,
+            career: null,
+            interview: null,
+            careerIntel: null
+        };
+
+        function clampScore(value) {
+            const n = Number(value);
+            return Number.isFinite(n) ? Math.max(0, Math.min(100, Math.round(n))) : null;
+        }
+
+        function scoreMarkup(value) {
+            return value === null ? `—<span>/100</span>` : `${value}<span>/100</span>`;
+        }
+
+        function scoreStatus(value) {
+            if (value === null) return "No data yet";
+            if (value >= 85) return "Excellent signal";
+            if (value >= 70) return "Strong signal";
+            if (value >= 55) return "Developing signal";
+            return "Needs attention";
+        }
+
+        function extractCareerIntel(result) {
+            if (!result || typeof result !== "object") return null;
+            let data = result.analysis || result.data || result.career_intelligence || result.result || result;
+            if (data && typeof data === "object" && data.data && typeof data.data === "object") data = data.data;
+            return data && typeof data === "object" ? data : null;
+        }
+
+        function extractCareerMatch(data) {
+            if (!data) return null;
+            const rc = data.recommended_career && typeof data.recommended_career === "object" ? data.recommended_career : null;
+            return clampScore(
+                rc?.match ?? rc?.score ?? rc?.match_score ??
+                data.career_match ?? data.careerMatch ?? data.match_score ?? data.match ?? data.score
+            );
+        }
+
+        function extractCareerName(data) {
+            if (!data) return "Career profile";
+            const rc = data.recommended_career && typeof data.recommended_career === "object" ? data.recommended_career : null;
+            return rc?.career || rc?.name || rc?.title || data.career || data.recommendedCareer || "Career profile";
+        }
+
+        function setScoreCard(element, statusElement, value) {
+            if (!element || !statusElement) return;
+            element.innerHTML = scoreMarkup(value);
+            statusElement.textContent = scoreStatus(value);
+        }
+
+        function buildPriorities() {
+            const r = dashboardState.resume;
+            const c = dashboardState.career;
+            const i = dashboardState.interview;
+            const ci = dashboardState.careerIntel;
+            const priorities = [];
+
+            const resumeScore = r ? clampScore(r.resume_strength_score ?? r.strength_score) : null;
+            const ats = r ? clampScore(r.ats_score) : null;
+            const careerMatch = extractCareerMatch(ci);
+            const interviewScore = i ? clampScore(i.overall_score ?? i.score) : null;
+            const roadmap = c ? clampScore(c.progress) : null;
+
+            if (resumeScore === null) {
+                priorities.push(["Analyze your resume", "HIGH", "resume.html"]);
+            } else if (resumeScore < 75) {
+                priorities.push(["Strengthen weak resume sections", "HIGH", "resume.html"]);
+            }
+
+            if (ats !== null && ats < 80) {
+                priorities.push(["Improve ATS keyword coverage", "HIGH", "resume.html"]);
+            }
+
+            if (careerMatch === null) {
+                priorities.push(["Run Career Intelligence analysis", "MED", "career-intelligence.html"]);
+            } else if (careerMatch < 75) {
+                priorities.push(["Close the highest-impact skill gaps", "HIGH", "career-intelligence.html"]);
+            }
+
+            if (interviewScore === null) {
+                priorities.push(["Complete interview practice", "MED", "interview.html"]);
+            } else if (interviewScore < 75) {
+                priorities.push(["Practice weak interview areas", "HIGH", "interview.html"]);
+            }
+
+            if (roadmap === null || roadmap < 75) {
+                priorities.push(["Complete your next roadmap milestone", "MED", "roadmap.html"]);
+            }
+
+            if (!priorities.length) {
+                priorities.push(
+                    ["Add measurable achievements to your resume", "LOW", "resume.html"],
+                    ["Practice one advanced interview question", "LOW", "interview.html"],
+                    ["Complete the next learning milestone", "LOW", "roadmap.html"]
+                );
+            }
+
+            return priorities.slice(0, 3);
+        }
+
+        function renderPriorities() {
+            if (!dashboardPriorities) return;
+            const items = buildPriorities();
+            dashboardPriorities.innerHTML = items.map((item, index) => `
+                <div class="priority-item" data-priority-link="${item[2]}">
+                    <div class="priority-number">${String(index + 1).padStart(2, "0")}</div>
+                    <div class="priority-text">${escapeDashboardHTML(item[0])}</div>
+                    <div class="priority-badge">${item[1]}</div>
+                </div>
+            `).join("");
+            dashboardPriorities.querySelectorAll("[data-priority-link]").forEach(el => {
+                el.addEventListener("click", () => {
+                    window.location.href = el.dataset.priorityLink;
+                });
+                el.style.cursor = "pointer";
+            });
+        }
+
+        function escapeDashboardHTML(value) {
+            return String(value ?? "")
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        function renderNextAction() {
+            const items = buildPriorities();
+            const first = items[0];
+            if (!first) return;
+            dashboardNextAction.textContent = first[0];
+            dashboardNextActionDescription.textContent = first[1] === "HIGH"
+                ? "This is the highest-impact improvement currently visible in your career profile."
+                : "A useful next step based on your current career intelligence data.";
+            dashboardNextActionButton.textContent = "OPEN MODULE →";
+            dashboardNextActionButton.onclick = () => { window.location.href = first[2]; };
+        }
+
+        function renderCommandCenter() {
+            const resume = dashboardState.resume;
+            const career = dashboardState.career;
+            const interview = dashboardState.interview;
+            const careerIntel = dashboardState.careerIntel;
+
+            const resumeScore = resume ? clampScore(resume.resume_strength_score ?? resume.strength_score) : null;
+            const ats = resume ? clampScore(resume.ats_score) : null;
+            const careerMatch = extractCareerMatch(careerIntel);
+            const interviewScore = interview ? clampScore(interview.overall_score ?? interview.score) : null;
+            const roadmapProgress = career ? clampScore(career.progress) : null;
+
+            setScoreCard(dashboardResumeScore, dashboardResumeStatus, resumeScore);
+            setScoreCard(dashboardATSScore, dashboardATSStatus, ats);
+            setScoreCard(dashboardCareerScore, dashboardCareerStatus, careerMatch);
+            setScoreCard(dashboardInterviewScore, dashboardInterviewStatus, interviewScore);
+
+            const progress = roadmapProgress ?? 0;
+            dashboardRoadmapProgress.textContent = `${progress}%`;
+            dashboardRoadmapFill.style.width = `${progress}%`;
+            dashboardRoadmapCareer.textContent = career?.career ? `${career.career} roadmap` : "Career roadmap";
+            dashboardRoadmapMeta.textContent = `${career?.completed_steps?.length ?? 0} / ${career?.total_steps ?? 0} milestones`;
+
+            renderPriorities();
+            renderNextAction();
+
+            const available = [resumeScore, ats, careerMatch, interviewScore].filter(v => v !== null).length;
+            snapshotStatus.textContent = available === 4 ? "All career signals synced" : `${available}/4 career signals available`;
+        }
+
+        async function fetchJSON(url) {
+            const response = await fetch(url);
+            let data = {};
+            try { data = await response.json(); } catch (_) {}
+            if (!response.ok) throw new Error(data.message || `API returned ${response.status}`);
+            return data;
+        }
+
+        async function loadCommandCenter() {
+            if (!currentUser) return;
+            const user = encodeURIComponent(currentUser);
+            const results = await Promise.allSettled([
+                fetchJSON(`${API_URL}/api/dashboard/overview/${user}?t=${Date.now()}`),
+                fetchJSON(`${API_URL}/api/career-intelligence/saved/${user}?t=${Date.now()}`),
+                fetchJSON(`${API_URL}/api/interview/latest/${user}?t=${Date.now()}`)
+            ]);
+
+            const [overviewResult, careerIntelResult, interviewResult] = results;
+
+            if (overviewResult.status === "fulfilled") {
+                if (overviewResult.value.resume) dashboardState.resume = overviewResult.value.resume;
+                if (overviewResult.value.career) dashboardState.career = overviewResult.value.career;
+            }
+            if (careerIntelResult.status === "fulfilled") {
+                dashboardState.careerIntel = extractCareerIntel(careerIntelResult.value);
+            }
+            if (interviewResult.status === "fulfilled" && interviewResult.value.has_interview) {
+                dashboardState.interview = interviewResult.value.report || null;
+            }
+
+            renderCommandCenter();
+        }
 
 
         /* =========================================================
@@ -3687,11 +4230,14 @@
 
         document.addEventListener(
             "DOMContentLoaded",
-            function() {
+            async function() {
 
                 initializeUser();
 
-                loadLatestAnalysis();
+                await Promise.all([
+                    loadLatestAnalysis(),
+                    loadCommandCenter()
+                ]);
 
             }
         );
