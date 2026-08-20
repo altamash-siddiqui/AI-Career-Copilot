@@ -5,6 +5,14 @@
 const API_URL = "http://127.0.0.1:5000";
 
 // ============================================================
+// AUTH STORAGE KEYS
+// ============================================================
+
+const USER_STORAGE_KEY = "careerCopilotUser";
+const LOGIN_STORAGE_KEY = "careerCopilotLoggedIn";
+const TOKEN_STORAGE_KEY = "careerCopilotToken";
+
+// ============================================================
 // FIND LOGIN ELEMENTS
 // ============================================================
 
@@ -90,7 +98,7 @@ async function loginUser() {
         : "";
 
     const password = passwordInput
-        ? passwordInput.value.trim()
+        ? passwordInput.value
         : "";
 
     // --------------------------------------------------------
@@ -158,38 +166,114 @@ async function loginUser() {
             const loggedInUsername =
                 result.username || username;
 
-            // Save user session
+            // ------------------------------------------------
+            // DAY 38 - AUTH TOKEN VALIDATION
+            // ------------------------------------------------
+
+            if (!result.token) {
+
+                console.error(
+                    "❌ Login succeeded but authentication token was missing."
+                );
+
+                alert(
+                    "Login failed: authentication token was not received."
+                );
+
+                return;
+            }
+
+            // ------------------------------------------------
+            // SAVE USER SESSION
+            // ------------------------------------------------
+
             localStorage.setItem(
-                "careerCopilotUser",
+                USER_STORAGE_KEY,
                 loggedInUsername
             );
 
             localStorage.setItem(
-                "careerCopilotLoggedIn",
+                LOGIN_STORAGE_KEY,
                 "true"
+            );
+
+            // ------------------------------------------------
+            // SAVE DAY-38 AUTHENTICATION TOKEN
+            // ------------------------------------------------
+
+            localStorage.setItem(
+                TOKEN_STORAGE_KEY,
+                result.token
+            );
+
+            console.log(
+                "🔐 Authentication token saved."
+            );
+
+            console.log(
+                "👤 Logged-in user:",
+                loggedInUsername
+            );
+
+            console.log(
+                "⏱️ Token expires in:",
+                result.expires_in,
+                "seconds"
+            );
+
+            // ------------------------------------------------
+            // VERIFY STORAGE BEFORE REDIRECT
+            // ------------------------------------------------
+
+            const storedUser =
+                localStorage.getItem(
+                    USER_STORAGE_KEY
+                );
+
+            const storedToken =
+                localStorage.getItem(
+                    TOKEN_STORAGE_KEY
+                );
+
+            if (!storedUser || !storedToken) {
+
+                console.error(
+                    "❌ Authentication data could not be saved to localStorage."
+                );
+
+                alert(
+                    "Login failed: unable to save your authentication session."
+                );
+
+                return;
+            }
+
+            console.log(
+                "✅ Authentication session stored successfully."
             );
 
             alert(
                 `Welcome back, ${loggedInUsername}! 🚀`
             );
 
-            // Redirect to dashboard
+            // ------------------------------------------------
+            // REDIRECT TO DASHBOARD
+            // ------------------------------------------------
+
             window.location.href =
                 "dashboard.html";
 
+            return;
         }
 
         // ----------------------------------------------------
         // FAILED LOGIN
         // ----------------------------------------------------
 
-        else {
-
-            alert(
-                result.message ||
-                "Invalid username or password."
-            );
-        }
+        alert(
+            result.message ||
+            "Invalid username or password."
+        );
 
     } catch (error) {
 
@@ -328,22 +412,67 @@ async function registerUser() {
 }
 
 // ============================================================
-// BUTTON EVENTS
+// BUTTON / FORM EVENTS
+// ============================================================
+//
+// IMPORTANT:
+// The login button is likely inside an HTML <form>.
+// Without preventing the form's default submission,
+// the browser performs a GET request and exposes
+// username/password in the URL.
+//
+// We intercept the form submit and run loginUser()
+// through JavaScript instead.
 // ============================================================
 
 if (loginButton) {
 
-    loginButton.addEventListener(
-        "click",
-        loginUser
-    );
+    const loginForm =
+        loginButton.closest("form");
+
+    if (loginForm) {
+
+        loginForm.addEventListener(
+            "submit",
+            function (event) {
+
+                event.preventDefault();
+                event.stopPropagation();
+
+                loginUser();
+            }
+        );
+
+    } else {
+
+        loginButton.addEventListener(
+            "click",
+            function (event) {
+
+                event.preventDefault();
+                event.stopPropagation();
+
+                loginUser();
+            }
+        );
+
+    }
 }
+
+// ============================================================
+// REGISTER BUTTON EVENT
+// ============================================================
 
 if (registerButton) {
 
     registerButton.addEventListener(
         "click",
-        registerUser
+        function (event) {
+
+            event.preventDefault();
+
+            registerUser();
+        }
     );
 }
 
@@ -360,6 +489,8 @@ if (passwordInput) {
             if (event.key === "Enter") {
 
                 event.preventDefault();
+
+                event.stopPropagation();
 
                 loginUser();
             }
@@ -389,7 +520,9 @@ if (
 
     passwordToggle.addEventListener(
         "click",
-        function () {
+        function (event) {
+
+            event.preventDefault();
 
             if (
                 passwordField.type ===
@@ -426,6 +559,11 @@ console.log(
 console.log(
     "🔗 Backend API:",
     API_URL
+);
+
+console.log(
+    "🔐 Token storage key:",
+    TOKEN_STORAGE_KEY
 );
 
 // ============================================================

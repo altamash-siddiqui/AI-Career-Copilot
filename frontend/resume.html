@@ -2415,10 +2415,14 @@
             );
 
             const response =
-                await fetch(
+                await authenticatedFetch(
                     `${API_URL}/api/resume/optimize`,
                     {
                         method: "POST",
+                        headers: {
+                            "Authorization":
+                                `Bearer ${authToken}`
+                        },
                         body: formData
                     }
                 );
@@ -2727,14 +2731,16 @@
             ---------------------------------------------------- */
 
             const response =
-                await fetch(
+                await authenticatedFetch(
                     `${API_URL}/api/resume/optimize/approve`,
                     {
                         method: "POST",
 
                         headers: {
                             "Content-Type":
-                                "application/json"
+                                "application/json",
+                            "Authorization":
+                                `Bearer ${authToken}`
                         },
 
                         body: JSON.stringify({
@@ -4231,6 +4237,53 @@ Example: We are looking for a Python Backend Engineer with Python, Flask, REST A
         const API_URL =
             "http://127.0.0.1:5000";
 
+        /* =========================================================
+           DAY 38 — AUTHENTICATED API REQUESTS
+        ========================================================= */
+
+        const USER_STORAGE_KEY = "careerCopilotUser";
+        const TOKEN_STORAGE_KEY = "careerCopilotToken";
+        const LOGIN_STORAGE_KEY = "careerCopilotLoggedIn";
+
+        function clearAuthAndRedirect(message = "Authentication required. Please login again.") {
+            console.warn("[AUTH]", message);
+            localStorage.removeItem(USER_STORAGE_KEY);
+            localStorage.removeItem(TOKEN_STORAGE_KEY);
+            localStorage.removeItem(LOGIN_STORAGE_KEY);
+            window.location.href = "index.html";
+        }
+
+        async function authenticatedFetch(url, options = {}) {
+            const token = localStorage.getItem(TOKEN_STORAGE_KEY);
+
+            if (!token) {
+                clearAuthAndRedirect("Authentication token is missing.");
+                throw new Error("Authentication required. Please login again.");
+            }
+
+            const headers = new Headers(options.headers || {});
+            headers.set("Authorization", `Bearer ${token}`);
+
+            const response = await window.fetch(url, {
+                ...options,
+                headers
+            });
+
+            if (response.status === 401) {
+                let message = "Authentication required. Please login again.";
+                try {
+                    const cloned = response.clone();
+                    const data = await cloned.json();
+                    message = data.message || message;
+                } catch (_) {}
+                clearAuthAndRedirect(message);
+                throw new Error(message);
+            }
+
+            return response;
+        }
+
+
         const MAX_FILE_SIZE =
             10 * 1024 * 1024;
 
@@ -4238,9 +4291,15 @@ Example: We are looking for a Python Backend Engineer with Python, Flask, REST A
             ["pdf", "docx", "txt"];
 
         const currentUser =
-            localStorage.getItem("careerCopilotUser");
+            localStorage.getItem(USER_STORAGE_KEY);
 
-        if (!currentUser) {
+        const authToken =
+            localStorage.getItem(TOKEN_STORAGE_KEY);
+
+        if (!currentUser || !authToken) {
+            localStorage.removeItem(USER_STORAGE_KEY);
+            localStorage.removeItem("careerCopilotLoggedIn");
+            localStorage.removeItem(TOKEN_STORAGE_KEY);
             window.location.href = "index.html";
         }
 
@@ -4738,10 +4797,14 @@ Example: We are looking for a Python Backend Engineer with Python, Flask, REST A
 
 
                 const response =
-                    await fetch(
+                    await authenticatedFetch(
                         `${API_URL}/api/resume/analyze`,
                         {
                             method: "POST",
+                            headers: {
+                                "Authorization":
+                                    `Bearer ${authToken}`
+                            },
                             body: formData
                         }
                     );
@@ -6315,9 +6378,12 @@ Example: We are looking for a Python Backend Engineer with Python, Flask, REST A
             document.getElementById("jobMatchStatus").textContent = "MATCHING IN PROGRESS";
 
             try {
-                const response = await fetch(`${API_URL}/api/job-match`, {
+                const response = await authenticatedFetch(`${API_URL}/api/job-match`, {
                     method: "POST",
-                    headers: { "Content-Type": "application/json" },
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${authToken}`
+                    },
                     body: JSON.stringify({
                         username: currentUser,
                         resume_file: latestResumeFile,
@@ -6358,10 +6424,16 @@ Example: We are looking for a Python Backend Engineer with Python, Flask, REST A
             try {
 
                 const response =
-                    await fetch(
+                    await authenticatedFetch(
                         `${API_URL}/api/resume/latest/${encodeURIComponent(
                             currentUser
-                        )}`
+                        )}`,
+                        {
+                            headers: {
+                                "Authorization":
+                                    `Bearer ${authToken}`
+                            }
+                        }
                     );
 
 

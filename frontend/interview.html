@@ -1996,10 +1996,60 @@ button:disabled{
   .performance-metrics{grid-template-columns:1fr 1fr}
 }
 
+
+
+/* =========================================================
+   CURSOR GLOW
+========================================================= */
+
+.cursor-glow {
+
+    position:
+        fixed;
+
+    width:
+        260px;
+
+    height:
+        260px;
+
+    border-radius:
+        50%;
+
+    pointer-events:
+        none;
+
+    z-index:
+        2;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(72,234,255,.075),
+            transparent 65%
+        );
+
+    transform:
+        translate(-50%,-50%);
+
+    opacity:
+        0;
+
+    transition:
+        opacity .3s ease;
+
+}
+
 </style>
 </head>
 
 <body>
+
+<div
+    class="cursor-glow"
+    id="cursorGlow"
+></div>
+
 
 <div class="ambient a1"></div>
 <div class="ambient a2"></div>
@@ -2681,6 +2731,53 @@ button:disabled{
 
 const API_URL = "http://127.0.0.1:5000";
 
+        /* =========================================================
+           DAY 38 — AUTHENTICATED API REQUESTS
+        ========================================================= */
+
+        const USER_STORAGE_KEY = "careerCopilotUser";
+        const TOKEN_STORAGE_KEY = "careerCopilotToken";
+        const LOGIN_STORAGE_KEY = "careerCopilotLoggedIn";
+
+        function clearAuthAndRedirect(message = "Authentication required. Please login again.") {
+            console.warn("[AUTH]", message);
+            localStorage.removeItem(USER_STORAGE_KEY);
+            localStorage.removeItem(TOKEN_STORAGE_KEY);
+            localStorage.removeItem(LOGIN_STORAGE_KEY);
+            window.location.href = "index.html";
+        }
+
+        async function authenticatedFetch(url, options = {}) {
+            const token = localStorage.getItem(TOKEN_STORAGE_KEY);
+
+            if (!token) {
+                clearAuthAndRedirect("Authentication token is missing.");
+                throw new Error("Authentication required. Please login again.");
+            }
+
+            const headers = new Headers(options.headers || {});
+            headers.set("Authorization", `Bearer ${token}`);
+
+            const response = await window.fetch(url, {
+                ...options,
+                headers
+            });
+
+            if (response.status === 401) {
+                let message = "Authentication required. Please login again.";
+                try {
+                    const cloned = response.clone();
+                    const data = await cloned.json();
+                    message = data.message || message;
+                } catch (_) {}
+                clearAuthAndRedirect(message);
+                throw new Error(message);
+            }
+
+            return response;
+        }
+
+
 const currentUser =
   localStorage.getItem("careerCopilotUser");
 
@@ -2803,7 +2900,7 @@ async function speak(text){
   // it for this page session. Browser TTS becomes the automatic provider.
   if(elevenLabsEnabled && !elevenLabsTTSCircuitOpen){
     try{
-      const response = await fetch(`${API_URL}/api/interview/speak`, {
+      const response = await authenticatedFetch(`${API_URL}/api/interview/speak`, {
         method:"POST",
         headers:{"Content-Type":"application/json"},
         body:JSON.stringify({text})
@@ -3577,7 +3674,7 @@ async function startInterview(){
   try{
 
     const response =
-      await fetch(
+      await authenticatedFetch(
         `${API_URL}/api/interview/start`,
         {
           method:"POST",
@@ -4362,7 +4459,7 @@ async function submitAnswer(){
   try{
 
     const response =
-      await fetch(
+      await authenticatedFetch(
         `${API_URL}/api/interview/evaluate`,
         {
           method:"POST",
@@ -4876,7 +4973,7 @@ async function transcribeVoiceAnswer(blob){
   try{
     const form = new FormData();
     form.append("audio", blob, "interview-answer.webm");
-    const response = await fetch(`${API_URL}/api/interview/transcribe`, {method:"POST",body:form});
+    const response = await authenticatedFetch(`${API_URL}/api/interview/transcribe`, {method:"POST",body:form});
     const data = await response.json();
     if(!response.ok || !data.success){
       throw new Error(data.message || "Voice transcription failed.");
@@ -4965,7 +5062,7 @@ async function loadFinalReport(){
   try{
 
     const response =
-      await fetch(
+      await authenticatedFetch(
         `${API_URL}/api/interview/report/${encodeURIComponent(sessionId)}`
       );
 
@@ -5379,7 +5476,7 @@ async function loadExistingSession(){
   try{
 
     const response =
-      await fetch(
+      await authenticatedFetch(
         `${API_URL}/api/interview/session/${encodeURIComponent(savedSession)}`
       );
 
@@ -5819,6 +5916,46 @@ window.fetch =
     return response;
 
   };
+
+
+
+
+/* =========================================================
+   CURSOR GLOW
+========================================================= */
+
+const cursorGlow =
+    document.getElementById(
+        "cursorGlow"
+    );
+
+
+document.addEventListener(
+    "mousemove",
+    function(event) {
+
+        cursorGlow.style.left =
+            event.clientX + "px";
+
+        cursorGlow.style.top =
+            event.clientY + "px";
+
+        cursorGlow.style.opacity =
+            "1";
+
+    }
+);
+
+
+document.addEventListener(
+    "mouseleave",
+    function() {
+
+        cursorGlow.style.opacity =
+            "0";
+
+    }
+);
 
 
 /* =========================================================

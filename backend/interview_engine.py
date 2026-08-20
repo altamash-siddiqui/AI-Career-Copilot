@@ -20,9 +20,23 @@ except ImportError:
 # CONFIG
 # ============================================================
 
+
+def _env_int(name, default, minimum=None, maximum=None):
+    try:
+        value = int(os.getenv(name, str(default)).strip())
+    except (TypeError, ValueError):
+        value = default
+
+    if minimum is not None:
+        value = max(minimum, value)
+    if maximum is not None:
+        value = min(maximum, value)
+    return value
+
+
 INTERVIEW_SESSIONS = {}
 SESSION_LOCK = threading.RLock()
-QUESTION_COUNT = 8
+QUESTION_COUNT = _env_int("INTERVIEW_QUESTION_COUNT", 8, minimum=1, maximum=20)
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "").strip()
 GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-3.6-flash").strip()
 
@@ -34,10 +48,10 @@ ELEVENLABS_OUTPUT_FORMAT = os.getenv("ELEVENLABS_OUTPUT_FORMAT", "mp3_44100_128"
 
 GEMINI_CLIENT = None
 GEMINI_DISABLED_UNTIL = 0.0
-GEMINI_DISABLE_SECONDS = max(30, int(os.getenv("GEMINI_QUOTA_COOLDOWN_SECONDS", "900")))
+GEMINI_DISABLE_SECONDS = _env_int("GEMINI_QUOTA_COOLDOWN_SECONDS", 900, minimum=30, maximum=86400)
 ELEVENLABS_TTS_DISABLED_UNTIL = 0.0
 ELEVENLABS_STT_DISABLED_UNTIL = 0.0
-ELEVENLABS_DISABLE_SECONDS = max(60, int(os.getenv("ELEVENLABS_QUOTA_COOLDOWN_SECONDS", "3600")))
+ELEVENLABS_DISABLE_SECONDS = _env_int("ELEVENLABS_QUOTA_COOLDOWN_SECONDS", 3600, minimum=60, maximum=86400)
 if genai and GEMINI_API_KEY:
     try:
         GEMINI_CLIENT = genai.Client(api_key=GEMINI_API_KEY)
@@ -623,9 +637,43 @@ def _generate_report(session):
 # ROUTES
 # ============================================================
 
-def register_interview_routes(app, resume_manager):
+def register_interview_routes(app, resume_manager, require_auth, get_authenticated_username):
+
+    def _get_owned_session(session_id):
+        authenticated_username = get_authenticated_username()
+        if not authenticated_username:
+            return None, jsonify({
+                "success": False,
+                "message": "Authentication required. Please login again."
+            }), 401
+
+        session_id = _text(session_id)
+        if not session_id:
+            return None, jsonify({
+                "success": False,
+                "message": "Session ID is required."
+            }), 400
+
+        with SESSION_LOCK:
+            session = INTERVIEW_SESSIONS.get(session_id)
+
+        if not session:
+            return None, jsonify({
+                "success": False,
+                "message": "Interview session expired. Please restart."
+            }), 404
+
+        owner = _text(session.get("username"))
+        if owner.lower() != authenticated_username.lower():
+            return None, jsonify({
+                "success": False,
+                "message": "You are not authorized to access this interview session."
+            }), 403
+
+        return session, None, None
 
     @app.route("/api/interview/start", methods=["POST"])
+    @require_auth
     def interview_start():
         try:
             data = request.get_json(silent=True) or {}
@@ -693,6 +741,7 @@ def register_interview_routes(app, resume_manager):
             return jsonify({"success": False, "message": "Unable to start the interview."}), 500
 
     @app.route("/api/interview/mode", methods=["POST"])
+    @require_auth
     def interview_mode():
         data = request.get_json(silent=True) or {}
         session_id = _text(data.get("session_id"))
@@ -703,10 +752,9 @@ def register_interview_routes(app, resume_manager):
             mode = "VOICE"
         else:
             return jsonify({"success": False, "message": "answer_mode must be chat or voice."}), 400
-        with SESSION_LOCK:
-            session = INTERVIEW_SESSIONS.get(session_id)
-        if not session:
-            return jsonify({"success": False, "message": "Interview session expired. Please start again."}), 404
+        session, error_response, error_status = _get_owned_session(session_id)
+        if error_response is not None:
+            return error_response, error_status
         session["answer_mode"] = mode
         session["state"] = "QUESTION"
         session["question"] = _first_question(session["analysis"], session["role"], session.get("preferred_language", "ENGLISH"))
@@ -714,6 +762,7 @@ def register_interview_routes(app, resume_manager):
         return _respond({"success": True, "type": "question", "answer_mode": mode, "message": message, "speech_text": message, "question": session["question"], "question_number": 1, "question_count": session["question_count"], "state": "QUESTION", "finished": False})
 
     @app.route("/api/interview/evaluate", methods=["POST"])
+    @require_auth
     def interview_evaluate():
         try:
             data = request.get_json(silent=True) or {}
@@ -723,10 +772,9 @@ def register_interview_routes(app, resume_manager):
                 return jsonify({"success": False, "message": "Session ID is required."}), 400
             if not answer:
                 return jsonify({"success": False, "message": "Please provide an answer."}), 400
-            with SESSION_LOCK:
-                session = INTERVIEW_SESSIONS.get(session_id)
-            if not session:
-                return jsonify({"success": False, "message": "Interview session expired. Please restart."}), 404
+            session, error_response, error_status = _get_owned_session(session_id)
+            if error_response is not None:
+                return error_response, error_status
 
             intent_result = _classify_intent(answer, session)
             intent = _text(intent_result.get("intent"), "ANSWER")
@@ -868,14 +916,21 @@ def register_interview_routes(app, resume_manager):
             return jsonify({"success": False, "message": "Unable to process this interview turn."}), 500
 
     @app.route("/api/interview/guidance", methods=["POST"])
+    @require_auth
     def interview_guidance():
         # Backwards-compatible endpoint. The main conversation now lives in /evaluate.
         data = request.get_json(silent=True) or {}
         data["answer"] = _text(data.get("answer"), "yes")
-        with app.test_request_context(json=data):
+        with app.test_request_context(
+            json=data,
+            headers={
+                "Authorization": request.headers.get("Authorization", "")
+            }
+        ):
             return interview_evaluate()
 
     @app.route("/api/interview/transcribe", methods=["POST"])
+    @require_auth
     def interview_transcribe():
         try:
             if not _elevenlabs_stt_available():
@@ -897,6 +952,7 @@ def register_interview_routes(app, resume_manager):
             return jsonify({"success": False, "message": "Unable to process the voice answer."}), 500
 
     @app.route("/api/interview/speak", methods=["POST"])
+    @require_auth
     def interview_speak():
         try:
             data = request.get_json(silent=True) or {}
@@ -917,11 +973,11 @@ def register_interview_routes(app, resume_manager):
             return jsonify({"success": False, "message": "Unable to generate interviewer voice."}), 500
 
     @app.route("/api/interview/session/<session_id>", methods=["GET"])
+    @require_auth
     def interview_session(session_id):
-        with SESSION_LOCK:
-            session = INTERVIEW_SESSIONS.get(session_id)
-        if not session:
-            return jsonify({"success": False, "message": "Interview session not found."}), 404
+        session, error_response, error_status = _get_owned_session(session_id)
+        if error_response is not None:
+            return error_response, error_status
         return jsonify({
             "success": True,
             "session_id": session_id,
@@ -944,16 +1000,17 @@ def register_interview_routes(app, resume_manager):
         }), 200
 
     @app.route("/api/interview/report/<session_id>", methods=["GET"])
+    @require_auth
     def interview_report(session_id):
-        with SESSION_LOCK:
-            session = INTERVIEW_SESSIONS.get(session_id)
-        if not session:
-            return jsonify({"success": False, "message": "Interview session not found."}), 404
+        session, error_response, error_status = _get_owned_session(session_id)
+        if error_response is not None:
+            return error_response, error_status
         report = session.get("report") or _generate_report(session)
         return _respond({"success": True, "session_id": session_id, "username": session["username"], "candidate_name": session["candidate_name"], "target_role": session["role"], "completed": session["state"] == "COMPLETED", "report": report})
 
 
     @app.route("/api/interview/latest/<username>", methods=["GET"])
+    @require_auth
     def interview_latest(username):
         """Return the latest completed interview report for a dashboard user."""
         username = _text(username)

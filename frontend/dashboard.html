@@ -3356,6 +3356,53 @@
         const API_URL =
             "http://127.0.0.1:5000";
 
+        /* =========================================================
+           DAY 38 — AUTHENTICATED API REQUESTS
+        ========================================================= */
+
+        const USER_STORAGE_KEY = "careerCopilotUser";
+        const TOKEN_STORAGE_KEY = "careerCopilotToken";
+        const LOGIN_STORAGE_KEY = "careerCopilotLoggedIn";
+
+        function clearAuthAndRedirect(message = "Authentication required. Please login again.") {
+            console.warn("[AUTH]", message);
+            localStorage.removeItem(USER_STORAGE_KEY);
+            localStorage.removeItem(TOKEN_STORAGE_KEY);
+            localStorage.removeItem(LOGIN_STORAGE_KEY);
+            window.location.href = "index.html";
+        }
+
+        async function authenticatedFetch(url, options = {}) {
+            const token = localStorage.getItem(TOKEN_STORAGE_KEY);
+
+            if (!token) {
+                clearAuthAndRedirect("Authentication token is missing.");
+                throw new Error("Authentication required. Please login again.");
+            }
+
+            const headers = new Headers(options.headers || {});
+            headers.set("Authorization", `Bearer ${token}`);
+
+            const response = await window.fetch(url, {
+                ...options,
+                headers
+            });
+
+            if (response.status === 401) {
+                let message = "Authentication required. Please login again.";
+                try {
+                    const cloned = response.clone();
+                    const data = await cloned.json();
+                    message = data.message || message;
+                } catch (_) {}
+                clearAuthAndRedirect(message);
+                throw new Error(message);
+            }
+
+            return response;
+        }
+
+
 
         /* =========================================================
            USER
@@ -3618,7 +3665,7 @@
         }
 
         async function fetchJSON(url) {
-            const response = await fetch(url);
+            const response = await authenticatedFetch(url);
             let data = {};
             try { data = await response.json(); } catch (_) {}
             if (!response.ok) throw new Error(data.message || `API returned ${response.status}`);
@@ -3834,7 +3881,7 @@
             try {
 
                 const response =
-                    await fetch(
+                    await authenticatedFetch(
                         `${API_URL}/api/resume/latest/${encodeURIComponent(currentUser)}`
                     );
 
@@ -4192,6 +4239,12 @@
 
                     localStorage.removeItem(
                         "careerCopilotUser"
+                    );
+                    localStorage.removeItem(
+                        "careerCopilotToken"
+                    );
+                    localStorage.removeItem(
+                        "careerCopilotLoggedIn"
                     );
 
 

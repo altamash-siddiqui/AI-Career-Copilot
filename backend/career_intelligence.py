@@ -1216,7 +1216,8 @@ def build_career_intelligence(
 
 def register_day33_routes(
     app,
-    resume_manager
+    resume_manager,
+    require_auth
 ):
 
     # ========================================================
@@ -1227,6 +1228,7 @@ def register_day33_routes(
         "/api/career-intelligence/<username>",
         methods=["GET"]
     )
+    @require_auth
     def career_intelligence(
         username
     ):
@@ -1335,6 +1337,7 @@ def register_day33_routes(
         "/api/career-intelligence/saved/<username>",
         methods=["GET"]
     )
+    @require_auth
     def saved_career_intelligence(
         username
     ):

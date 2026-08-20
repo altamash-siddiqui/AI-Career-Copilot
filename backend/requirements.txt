@@ -5,4 +5,4 @@ Werkzeug
 PyPDF2
 python-docx
 requests
-google-generativeai
+google-genai

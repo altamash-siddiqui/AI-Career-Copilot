@@ -3786,6 +3786,53 @@
         const API_URL =
             "http://127.0.0.1:5000";
 
+        /* =========================================================
+           DAY 38 — AUTHENTICATED API REQUESTS
+        ========================================================= */
+
+        const USER_STORAGE_KEY = "careerCopilotUser";
+        const TOKEN_STORAGE_KEY = "careerCopilotToken";
+        const LOGIN_STORAGE_KEY = "careerCopilotLoggedIn";
+
+        function clearAuthAndRedirect(message = "Authentication required. Please login again.") {
+            console.warn("[AUTH]", message);
+            localStorage.removeItem(USER_STORAGE_KEY);
+            localStorage.removeItem(TOKEN_STORAGE_KEY);
+            localStorage.removeItem(LOGIN_STORAGE_KEY);
+            window.location.href = "index.html";
+        }
+
+        async function authenticatedFetch(url, options = {}) {
+            const token = localStorage.getItem(TOKEN_STORAGE_KEY);
+
+            if (!token) {
+                clearAuthAndRedirect("Authentication token is missing.");
+                throw new Error("Authentication required. Please login again.");
+            }
+
+            const headers = new Headers(options.headers || {});
+            headers.set("Authorization", `Bearer ${token}`);
+
+            const response = await window.fetch(url, {
+                ...options,
+                headers
+            });
+
+            if (response.status === 401) {
+                let message = "Authentication required. Please login again.";
+                try {
+                    const cloned = response.clone();
+                    const data = await cloned.json();
+                    message = data.message || message;
+                } catch (_) {}
+                clearAuthAndRedirect(message);
+                throw new Error(message);
+            }
+
+            return response;
+        }
+
+
 
         /* =========================================================
            USER
@@ -5629,7 +5676,7 @@
 
 
             const response =
-                await fetch(
+                await authenticatedFetch(
                     url
                 );
 
@@ -5940,7 +5987,7 @@
             // Ask the Flask backend for the best YouTube result when a
             // YOUTUBE_API_KEY is configured. Without a key, the search URL
             // remains the reliable fallback and still opens on mobile/desktop.
-            fetch(
+            authenticatedFetch(
                 `${API_URL}/api/youtube/search?skill=${encodeURIComponent(skill)}`
             )
                 .then(function(response) {

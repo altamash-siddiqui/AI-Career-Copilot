@@ -1,30 +1,69 @@
-# Python cache
+# ==========================================
+# Python
+# ==========================================
+
 __pycache__/
-*.pyc
+*.py[cod]
+*.pyo
 
-# Logs
-*.log
 
-# User authentication data
+# ==========================================
+# Environment / Secrets
+# ==========================================
+
+.env
+.env.*
+!.env.example
+
+.venv/
+venv/
+env/
+
+
+# ==========================================
+# Authentication / User Data
+# ==========================================
+
 users.json
 backend/users.json
 
-# Local career data
+
+# ==========================================
+# Local Career Data
+# ==========================================
+
 career_data.json
 career_data_backup.json
+career_intelligence.json
 
-# Generated reports
+
+# ==========================================
+# Uploaded / Generated Files
+# ==========================================
+
+uploads/
+
+
+# ==========================================
+# Reports
+# ==========================================
+
 career_history.csv
 career_report.txt
 
-# Environment
-.env
-.venv/
-venv/
 
-uploads/
-*.pyc
-__pycache__/
-.env
-# Career Intelligence local data
-career_intelligence.json
+# ==========================================
+# Logs
+# ==========================================
+
+*.log
+
+
+# ==========================================
+# IDE / OS
+# ==========================================
+
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
