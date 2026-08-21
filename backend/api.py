@@ -4407,8 +4407,8 @@ if __name__ == "__main__":
     )
 
     print(
-        "Allowed Frontend: "
-        "http://127.0.0.1:5500"
+        "Allowed Origins: "
+        + ", ".join(CORS_ORIGINS)
     )
 
     print(
@@ -4424,9 +4424,17 @@ if __name__ == "__main__":
 
     app.run(
 
-        host="127.0.0.1",
+        host=os.getenv(
+            "HOST",
+            "0.0.0.0"
+        ),
 
-        port=5000,
+        port=int(
+            os.getenv(
+                "PORT",
+                "5000"
+            )
+        ),
 
         debug=(
             os.getenv(

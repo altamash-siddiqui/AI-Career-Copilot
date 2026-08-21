@@ -5,6 +5,16 @@
 __pycache__/
 *.py[cod]
 *.pyo
+*.pyd
+
+
+# ==========================================
+# Virtual Environments
+# ==========================================
+
+.venv/
+venv/
+env/
 
 
 # ==========================================
@@ -15,13 +25,9 @@ __pycache__/
 .env.*
 !.env.example
 
-.venv/
-venv/
-env/
-
 
 # ==========================================
-# Authentication / User Data
+# Authentication / Local User Data
 # ==========================================
 
 users.json
@@ -38,10 +44,33 @@ career_intelligence.json
 
 
 # ==========================================
+# Resume Runtime / Generated Data
+# ==========================================
+
+resume_analysis.json
+
+
+# ==========================================
 # Uploaded / Generated Files
 # ==========================================
 
 uploads/
+
+
+# ==========================================
+# Generated Audio / Voice Test Files
+# ==========================================
+
+*.mp3
+
+
+# ==========================================
+# Test / Temporary Files
+# ==========================================
+
+test-*.json
+*_test.py
+test_*.py
 
 
 # ==========================================
@@ -50,6 +79,16 @@ uploads/
 
 career_history.csv
 career_report.txt
+
+
+# ==========================================
+# Python Testing / Coverage
+# ==========================================
+
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
 
 
 # ==========================================
