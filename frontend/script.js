@@ -2,7 +2,7 @@
 // AI CAREER COPILOT - FRONTEND API CONNECTION
 // ============================================================
 
-const API_URL = "http://127.0.0.1:5000";
+const API_URL = "https://ai-career-copilot-u9sf.onrender.com";
 
 // ============================================================
 // AUTH STORAGE KEYS
